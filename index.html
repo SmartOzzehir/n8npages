@@ -3,186 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Approval Dashboard</title>
+    <title>Invoice Reminder Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             color: #e4e4e7;
-            padding: 20px;
         }
-        .container { max-width: 900px; margin: 0 auto; }
+
+        /* Header */
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            margin-bottom: 8px;
             background: linear-gradient(90deg, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .header .date { color: #9ca3af; font-size: 0.95rem; }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+
+        .header-actions {
+            display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            align-items: center;
         }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 65px);
+        }
+
+        /* Left Panel - Customer List */
+        .left-panel {
+            width: 420px;
+            min-width: 420px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .filters-bar {
             padding: 16px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .stat-card .number { font-size: 1.8rem; font-weight: 700; }
-        .stat-card .label { font-size: 0.8rem; color: #9ca3af; margin-top: 4px; }
-        .stat-card.overdue .number { color: #f87171; }
-        .stat-card.today .number { color: #fbbf24; }
-        .stat-card.upcoming .number { color: #60a5fa; }
-        .stat-card.selected .number { color: #34d399; }
-        .actions-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #e4e4e7;
+            font-size: 0.9rem;
+        }
+
+        .search-box input::placeholder { color: #9ca3af; }
+
+        .search-box svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            stroke: #9ca3af;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover { background: rgba(255,255,255,0.05); }
+        .filter-btn.active { background: rgba(96,165,250,0.2); color: #60a5fa; border-color: #60a5fa; }
+        .filter-btn.overdue.active { background: rgba(248,113,113,0.2); color: #f87171; border-color: #f87171; }
+        .filter-btn.today.active { background: rgba(251,191,36,0.2); color: #fbbf24; border-color: #fbbf24; }
+        .filter-btn.upcoming.active { background: rgba(96,165,250,0.2); color: #60a5fa; border-color: #60a5fa; }
+
+        .sort-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sort-row label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .sort-select {
+            padding: 4px 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            color: #e4e4e7;
+            font-size: 0.8rem;
+        }
+
+        /* Customer List */
+        .customer-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .customer-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .customer-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .customer-card.selected {
+            background: rgba(96,165,250,0.1);
+            border-color: rgba(96,165,250,0.3);
+        }
+
+        .customer-card.active {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 1px #60a5fa;
+        }
+
+        .customer-card.excluded {
+            opacity: 0.5;
+        }
+
+        .customer-header {
+            padding: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .customer-checkbox {
+            margin-top: 2px;
+        }
+
+        .customer-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #60a5fa;
+        }
+
+        .customer-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .customer-name-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .customer-amount {
+            font-weight: 700;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .customer-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-overdue { background: rgba(248,113,113,0.2); color: #f87171; }
+        .status-today { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .status-upcoming { background: rgba(96,165,250,0.2); color: #60a5fa; }
+
+        .reminder-count {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: rgba(139,92,246,0.2);
+            color: #a78bfa;
+        }
+
+        .customer-note-indicator {
+            color: #fbbf24;
+        }
+
+        .customer-invoices {
+            padding: 0 12px 12px 40px;
+            display: none;
+        }
+
+        .customer-card.expanded .customer-invoices {
+            display: block;
+        }
+
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.8rem;
+        }
+
+        .invoice-row:first-child {
+            border-top: none;
+        }
+
+        .invoice-no { color: #9ca3af; }
+        .invoice-due { color: #9ca3af; }
+        .invoice-amount { font-weight: 500; }
+        .invoice-days { font-size: 0.75rem; }
+        .invoice-days.overdue { color: #f87171; }
+        .invoice-days.today { color: #fbbf24; }
+        .invoice-days.upcoming { color: #60a5fa; }
+
+        .expand-btn {
+            padding: 4px 12px;
+            margin: 0 12px 8px 40px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: #9ca3af;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .expand-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* Summary Footer */
+        .list-footer {
+            padding: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .summary-title {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .summary-amounts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .summary-item {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .summary-item.tl { color: #34d399; }
+        .summary-item.usd { color: #60a5fa; }
+        .summary-item.eur { color: #fbbf24; }
+
+        /* Right Panel - Email Preview */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .preview-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            background: transparent;
+            color: #e4e4e7;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .preview-counter {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .preview-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .email-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #e4e4e7;
+            font-size: 0.9rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-input.readonly {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .cc-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            min-height: 44px;
+        }
+
+        .cc-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: rgba(96,165,250,0.2);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .cc-tag button {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .cc-input {
+            flex: 1;
+            min-width: 150px;
+            border: none;
+            background: transparent;
+            color: #e4e4e7;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .template-select {
+            display: flex;
+            gap: 8px;
+        }
+
+        .template-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .template-btn:hover { background: rgba(255,255,255,0.05); }
+
+        .template-btn.active {
+            border-color: #60a5fa;
+            background: rgba(96,165,250,0.1);
+            color: #60a5fa;
+        }
+
+        .template-btn.soft.active { border-color: #34d399; background: rgba(52,211,153,0.1); color: #34d399; }
+        .template-btn.firm.active { border-color: #fbbf24; background: rgba(251,191,36,0.1); color: #fbbf24; }
+        .template-btn.final.active { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
+
+        .template-name { font-weight: 600; font-size: 0.9rem; }
+        .template-desc { font-size: 0.7rem; margin-top: 4px; opacity: 0.7; }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #e4e4e7;
+            font-size: 0.9rem;
+            font-family: inherit;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .customer-note-section {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 8px;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .note-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .note-edit-btn {
+            padding: 4px 8px;
+            border: 1px solid rgba(251,191,36,0.5);
+            border-radius: 4px;
+            background: transparent;
+            color: #fbbf24;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .note-content {
+            font-size: 0.85rem;
+            color: #e4e4e7;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid rgba(251,191,36,0.5);
+            border-radius: 4px;
+            background: rgba(0,0,0,0.2);
+            color: #e4e4e7;
+            font-size: 0.85rem;
+        }
+
+        /* Buttons */
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #e4e4e7;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
         }
+
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.4);
         }
+
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        .customer-list { display: flex; flex-direction: column; gap: 10px; }
-        .customer-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 16px 20px;
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #e4e4e7;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* Loading & States */
+        .loading-state {
             display: flex;
-            align-items: center;
-            gap: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .customer-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-        .customer-card.selected {
-            background: rgba(52, 211, 153, 0.1);
-            border-color: rgba(52, 211, 153, 0.3);
-        }
-        .checkbox-wrapper { position: relative; width: 24px; height: 24px; }
-        .checkbox-wrapper input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        .checkmark {
-            width: 24px;
-            height: 24px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            height: 100%;
+            color: #9ca3af;
         }
-        .checkbox-wrapper input:checked + .checkmark {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            border-color: transparent;
-        }
-        .checkmark svg {
-            width: 14px;
-            height: 14px;
-            stroke: white;
-            stroke-width: 3;
-            fill: none;
-            opacity: 0;
-        }
-        .checkbox-wrapper input:checked + .checkmark svg { opacity: 1; }
-        .customer-info { flex: 1; min-width: 0; }
-        .customer-name {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .customer-details { font-size: 0.85rem; color: #9ca3af; }
-        .customer-amount { text-align: right; min-width: 120px; }
-        .amount-value { font-weight: 700; font-size: 1.1rem; }
-        .invoice-count { font-size: 0.8rem; color: #9ca3af; }
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-overdue { background: rgba(248, 113, 113, 0.2); color: #f87171; }
-        .status-today { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-        .status-upcoming { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
-        .submit-section {
-            margin-top: 24px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .submit-info { font-size: 0.95rem; }
-        .submit-info strong { color: #34d399; }
-        .loading { display: none; text-align: center; padding: 60px 20px; }
-        .loading.active { display: block; }
+
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255,255,255,0.1);
             border-top-color: #60a5fa;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin-bottom: 16px;
         }
+
         @keyframes spin { to { transform: rotate(360deg); } }
-        .success-message { display: none; text-align: center; padding: 60px 20px; }
-        .success-message.active { display: block; }
-        .success-icon {
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            stroke: #4b5563;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body { margin-bottom: 24px; }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Report Page */
+        .report-container {
+            display: none;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .report-container.active { display: block; }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .report-icon {
             width: 80px;
             height: 80px;
             background: linear-gradient(135deg, #34d399, #10b981);
@@ -190,288 +694,941 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 16px;
         }
-        .success-icon svg { width: 40px; height: 40px; stroke: white; stroke-width: 3; fill: none; }
-        .error-message {
-            display: none;
-            text-align: center;
-            padding: 40px 20px;
-            background: rgba(248, 113, 113, 0.1);
+
+        .report-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .report-icon.error {
+            background: linear-gradient(135deg, #f87171, #dc2626);
+        }
+
+        .report-title { font-size: 1.5rem; margin-bottom: 8px; }
+        .report-subtitle { color: #9ca3af; }
+
+        .report-section {
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 20px;
+            margin-bottom: 16px;
         }
-        .error-message.active { display: block; }
-        .error-message pre {
-            text-align: left;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 11px;
-            overflow-x: auto;
-            white-space: pre-wrap;
+
+        .report-section-title {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .no-data { text-align: center; padding: 60px 20px; color: #9ca3af; }
-        @media (max-width: 600px) {
-            .customer-card { flex-wrap: wrap; }
-            .customer-amount {
-                width: 100%;
-                text-align: left;
-                margin-top: 8px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-            }
+
+        .report-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .report-item:last-child { border-bottom: none; }
+
+        .report-item-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .report-item-icon.success { background: rgba(52,211,153,0.2); color: #34d399; }
+        .report-item-icon.error { background: rgba(248,113,113,0.2); color: #f87171; }
+
+        .report-item-content { flex: 1; }
+        .report-item-name { font-weight: 500; }
+        .report-item-detail { font-size: 0.8rem; color: #9ca3af; }
+
+        .report-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-container { flex-direction: column; }
+            .left-panel { width: 100%; min-width: auto; max-height: 50vh; }
+            .right-panel { max-height: 50vh; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Main Dashboard -->
+    <div id="dashboardView">
         <div class="header">
-            <h1>📊 Invoice Approval Dashboard</h1>
-            <div class="date" id="currentDate"></div>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Loading invoices...</p>
-        </div>
-
-        <div class="error-message" id="errorMessage">
-            <p>⚠️ <span id="errorText">Error</span></p>
-            <pre id="errorDetails"></pre>
-        </div>
-
-        <div class="success-message" id="successMessage">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <h2>Emails Sent Successfully!</h2>
-            <p style="color: #9ca3af; margin-top: 8px;">You can close this page now.</p>
-        </div>
-
-        <div id="mainContent" style="display: none;">
-            <div class="stats">
-                <div class="stat-card overdue">
-                    <div class="number" id="overdueCount">0</div>
-                    <div class="label">Overdue</div>
-                </div>
-                <div class="stat-card today">
-                    <div class="number" id="todayCount">0</div>
-                    <div class="label">Due Today</div>
-                </div>
-                <div class="stat-card upcoming">
-                    <div class="number" id="upcomingCount">0</div>
-                    <div class="label">Upcoming</div>
-                </div>
-                <div class="stat-card selected">
-                    <div class="number" id="selectedCount">0</div>
-                    <div class="label">Selected</div>
-                </div>
-            </div>
-
-            <div class="actions-bar">
-                <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
-                <button class="btn btn-secondary" onclick="selectNone()">Select None</button>
-                <button class="btn btn-secondary" onclick="selectOverdue()">Select Overdue Only</button>
-            </div>
-
-            <div class="customer-list" id="customerList"></div>
-
-            <div class="submit-section">
-                <div class="submit-info">
-                    <strong id="selectedTotal">0</strong> customers selected
-                </div>
-                <button class="btn btn-primary" id="submitBtn" onclick="submitApproval()">
-                    ✉️ Send Reminder Emails
+            <h1>📊 Invoice Reminder Dashboard</h1>
+            <div class="header-actions">
+                <span id="dateDisplay"></span>
+                <button class="btn btn-primary" id="sendAllBtn" onclick="showConfirmModal()">
+                    Send <span id="selectedCountHeader">0</span> Emails
                 </button>
             </div>
         </div>
 
-        <div class="no-data" id="noData" style="display: none;">
-            <h3>No Pending Invoices</h3>
-            <p>All caught up! No invoices need reminders today.</p>
+        <div class="main-container">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search customers..." oninput="filterCustomers()">
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+                        <button class="filter-btn overdue" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
+                        <button class="filter-btn today" data-filter="today" onclick="setFilter('today')">Today</button>
+                        <button class="filter-btn upcoming" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
+                    </div>
+                    <div class="sort-row">
+                        <label>Sort by:</label>
+                        <select class="sort-select" id="sortSelect" onchange="sortCustomers()">
+                            <option value="status">Status (Critical First)</option>
+                            <option value="amount">Amount (High to Low)</option>
+                            <option value="days">Days Overdue</option>
+                            <option value="lastEmail">Last Email (Oldest First)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="customer-list" id="customerList">
+                    <div class="loading-state" id="listLoading">
+                        <div class="spinner"></div>
+                        <p>Loading customers...</p>
+                    </div>
+                </div>
+
+                <div class="list-footer">
+                    <div class="summary-title">Selected Total:</div>
+                    <div class="summary-amounts" id="summaryAmounts">
+                        <span class="summary-item tl" id="summaryTL">0 TL</span>
+                        <span class="summary-item usd" id="summaryUSD">$0</span>
+                        <span class="summary-item eur" id="summaryEUR">€0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="preview-header">
+                    <div class="preview-nav">
+                        <button class="nav-btn" id="prevBtn" onclick="navigateCustomer(-1)">← Prev</button>
+                        <span class="preview-counter" id="previewCounter">0 / 0</span>
+                        <button class="nav-btn" id="nextBtn" onclick="navigateCustomer(1)">Next →</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" onclick="resetCurrentEmail()">Reset to Template</button>
+                    </div>
+                </div>
+
+                <div class="preview-content" id="previewContent">
+                    <div class="empty-state" id="emptyPreview">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                        </svg>
+                        <h3>Select a customer to preview email</h3>
+                        <p>Click on a customer from the list to see and edit their reminder email.</p>
+                    </div>
+
+                    <div class="email-form" id="emailForm" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <input type="text" class="form-input readonly" id="emailTo" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">CC (Press Enter to add)</label>
+                            <div class="cc-container" id="ccContainer">
+                                <input type="email" class="cc-input" id="ccInput" placeholder="Add email and press Enter" onkeydown="handleCCKeydown(event)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Template</label>
+                            <div class="template-select">
+                                <button class="template-btn soft" data-template="soft" onclick="setTemplate('soft')">
+                                    <div class="template-name">Soft</div>
+                                    <div class="template-desc">1st reminder, friendly tone</div>
+                                </button>
+                                <button class="template-btn firm" data-template="firm" onclick="setTemplate('firm')">
+                                    <div class="template-name">Firm</div>
+                                    <div class="template-desc">2nd-3rd reminder, professional</div>
+                                </button>
+                                <button class="template-btn final" data-template="final" onclick="setTemplate('final')">
+                                    <div class="template-name">Final</div>
+                                    <div class="template-desc">Last notice, urgent action</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-input" id="emailSubject" oninput="updateCurrentEmail()">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-textarea" id="emailBody" oninput="updateCurrentEmail()"></textarea>
+                        </div>
+
+                        <div class="customer-note-section" id="noteSection">
+                            <div class="note-header">
+                                <span class="note-title">📝 Customer Note</span>
+                                <button class="note-edit-btn" id="noteEditBtn" onclick="toggleNoteEdit()">Edit</button>
+                            </div>
+                            <div class="note-content" id="noteContent">No note</div>
+                            <input type="text" class="note-input" id="noteInput" style="display:none" placeholder="Add a note about this customer..." onblur="saveNote()" onkeydown="if(event.key==='Enter')saveNote()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report View -->
+    <div class="report-container" id="reportView">
+        <div class="report-header">
+            <div class="report-icon" id="reportIcon">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 class="report-title" id="reportTitle">Emails Sent Successfully!</h2>
+            <p class="report-subtitle" id="reportSubtitle">8 out of 8 emails were sent</p>
+        </div>
+
+        <div class="report-section">
+            <div class="report-section-title">Email Results</div>
+            <div id="reportEmailResults"></div>
+        </div>
+
+        <div class="report-section">
+            <div class="report-section-title">Sheet Updates</div>
+            <div id="reportSheetResults"></div>
+        </div>
+
+        <div class="report-actions">
+            <button class="btn btn-secondary" onclick="exportReport()">📥 Export Report</button>
+            <button class="btn btn-primary" onclick="closeDashboard()">Done</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Send</h3>
+                <button class="modal-close" onclick="hideConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to send <strong id="confirmCount">0</strong> reminder emails.</p>
+                <p style="margin-top: 12px; color: #9ca3af; font-size: 0.9rem;">This action cannot be undone. Make sure you have reviewed all emails.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideConfirmModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendAllEmails()">Yes, Send All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sending Modal -->
+    <div class="modal-overlay" id="sendingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Sending Emails...</h3>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 24px;">
+                <div class="spinner" style="margin: 0 auto 16px;"></div>
+                <p id="sendingStatus">Sending email 1 of 8...</p>
+            </div>
         </div>
     </div>
 
     <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
         const WEBHOOK_URL = 'https://smartozzehir.app.n8n.cloud/webhook/invoice-dashboard';
+        
+        // ============================================
+        // STATE
+        // ============================================
         let customers = [];
+        let selectedCustomerIndex = -1;
+        let currentFilter = 'all';
+        let emailEdits = {}; // Store email edits per customer ID
 
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+        // ============================================
+        // TEMPLATES
+        // ============================================
+        const templates = {
+            soft: {
+                tr: {
+                    subject: 'Ödeme Hatırlatması - Yaklaşan Vade Tarihi',
+                    body: `Sayın {hitap},
+
+Şirketimiz kayıtlarında, aşağıda bilgileri yer alan fatura/faturalarınızın vade tarihinin yaklaştığını nazikçe hatırlatmak isteriz.
+
+{invoiceTable}
+
+Ödemenizi gerçekleştirdiyseniz bu e-postayı dikkate almayabilirsiniz.
+
+Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.
+
+Saygılarımızla,
+Vispera AR Team`
+                },
+                en: {
+                    subject: 'Payment Reminder - Upcoming Due Date',
+                    body: `Dear {hitap},
+
+We would like to kindly remind you that the following invoice(s) are approaching their due date.
+
+{invoiceTable}
+
+If you have already made the payment, please disregard this email.
+
+Please don't hesitate to contact us if you have any questions.
+
+Best regards,
+Vispera AR Team`
+                }
+            },
+            firm: {
+                tr: {
+                    subject: 'Vadesi Geçen Faturalarınız Hakkında',
+                    body: `Sayın {hitap},
+
+Şirketimiz kayıtlarında, aşağıda detayları yer alan fatura/faturalarınızın vadesinin geçtiği ve ödemenin henüz tarafımıza ulaşmadığı görülmektedir.
+
+{invoiceTable}
+
+Ödemenizi en kısa sürede gerçekleştirmenizi rica ederiz.
+
+Ödemenizi gerçekleştirdiyseniz bu e-postayı dikkate almayabilirsiniz.
+
+Saygılarımızla,
+Vispera AR Team`
+                },
+                en: {
+                    subject: 'Overdue Invoice(s) - Payment Reminder',
+                    body: `Dear {hitap},
+
+We would like to bring to your attention that the following invoice(s) are past due and payment has not yet been received.
+
+{invoiceTable}
+
+We kindly request that you arrange payment at your earliest convenience.
+
+If you have already made the payment, please disregard this email.
+
+Best regards,
+Vispera AR Team`
+                }
+            },
+            final: {
+                tr: {
+                    subject: 'SON UYARI - Vadesi Geçen Faturalarınız',
+                    body: `Sayın {hitap},
+
+Daha önce gönderdiğimiz hatırlatmalara rağmen, aşağıdaki fatura/faturalarınızın ödemesinin hâlâ tarafımıza ulaşmadığını üzülerek bildirmek isteriz.
+
+{invoiceTable}
+
+Bu son hatırlatmamızdır. 7 iş günü içinde ödeme yapılmaması halinde, alacağımızın tahsili için yasal süreç başlatılacaktır.
+
+Ödemenizi derhal gerçekleştirmenizi önemle rica ederiz.
+
+Saygılarımızla,
+Vispera AR Team`
+                },
+                en: {
+                    subject: 'FINAL NOTICE - Overdue Invoice(s)',
+                    body: `Dear {hitap},
+
+Despite our previous reminders, we regret to inform you that payment for the following invoice(s) has still not been received.
+
+{invoiceTable}
+
+This is our final notice. If payment is not received within 7 business days, we will be forced to initiate legal proceedings for debt recovery.
+
+We strongly urge you to settle this matter immediately.
+
+Best regards,
+Vispera AR Team`
+                }
+            }
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
 
         document.addEventListener('DOMContentLoaded', loadData);
 
+        // ============================================
+        // DATA LOADING
+        // ============================================
         async function loadData() {
-            const loading = document.getElementById('loading');
-            const mainContent = document.getElementById('mainContent');
-            const errorMessage = document.getElementById('errorMessage');
-            const noData = document.getElementById('noData');
-
-            loading.classList.add('active');
-            errorMessage.classList.remove('active');
-            mainContent.style.display = 'none';
-            noData.style.display = 'none';
-
             try {
-                console.log('Fetching:', WEBHOOK_URL);
-                
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-                
-                console.log('Status:', response.status);
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const response = await fetch(WEBHOOK_URL);
+                if (!response.ok) throw new Error('Failed to load data');
                 
                 const data = await response.json();
-                console.log('Data:', data);
-                
                 customers = data.customers || [];
-                loading.classList.remove('active');
+                
+                // Initialize email edits for each customer
+                customers.forEach(c => {
+                    const template = suggestTemplate(c);
+                    emailEdits[c.id] = {
+                        cc: c.defaultCC ? c.defaultCC.split(',').map(e => e.trim()).filter(e => e) : [],
+                        template: template,
+                        subject: generateSubject(c, template),
+                        body: generateBody(c, template),
+                        note: c.customerNote || ''
+                    };
+                });
 
-                if (customers.length === 0) {
-                    noData.style.display = 'block';
-                } else {
-                    mainContent.style.display = 'block';
-                    renderCustomers();
-                    updateStats();
+                renderCustomerList();
+                updateSummary();
+                document.getElementById('listLoading').style.display = 'none';
+
+                if (customers.length > 0) {
+                    selectCustomer(0);
                 }
             } catch (error) {
-                console.error('Error:', error);
-                loading.classList.remove('active');
-                document.getElementById('errorText').textContent = error.message;
-                document.getElementById('errorDetails').textContent = 
-                    'URL: ' + WEBHOOK_URL + '\n\n' +
-                    'Possible causes:\n' +
-                    '1. Workflow is not active in n8n\n' +
-                    '2. CORS blocking the request\n' +
-                    '3. Network error\n\n' +
-                    'Check browser console (F12) for details.';
-                errorMessage.classList.add('active');
+                console.error('Error loading data:', error);
+                document.getElementById('listLoading').innerHTML = `
+                    <p style="color: #f87171;">Failed to load data</p>
+                    <p style="font-size: 0.8rem; margin-top: 8px;">${error.message}</p>
+                `;
             }
         }
 
-        function renderCustomers() {
-            const list = document.getElementById('customerList');
-            list.innerHTML = '';
+        // ============================================
+        // TEMPLATE LOGIC
+        // ============================================
+        function suggestTemplate(customer) {
+            const emailCount = customer.emailCount || 0;
+            const maxDaysOverdue = Math.max(...customer.invoices.map(i => i.daysOverdue || 0));
             
-            const statusOrder = { 'overdue': 0, 'today': 1, 'upcoming': 2 };
-            customers.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+            if (emailCount >= 3 || maxDaysOverdue >= 45) return 'final';
+            if (emailCount >= 1 || maxDaysOverdue >= 15) return 'firm';
+            return 'soft';
+        }
 
-            customers.forEach(customer => {
-                const card = document.createElement('div');
-                card.className = 'customer-card selected';
-                card.dataset.id = customer.id;
-                card.onclick = (e) => { if (e.target.type !== 'checkbox') toggleCustomer(customer.id); };
+        function generateSubject(customer, template) {
+            const lang = customer.isTR ? 'tr' : 'en';
+            return templates[template][lang].subject;
+        }
 
-                let statusText = customer.status === 'overdue' ? `${customer.daysOverdue}d overdue` :
-                                 customer.status === 'today' ? 'Due today' : `${customer.daysUntilDue}d left`;
+        function generateBody(customer, template) {
+            const lang = customer.isTR ? 'tr' : 'en';
+            let body = templates[template][lang].body;
+            
+            body = body.replace('{hitap}', customer.hitap || customer.name);
+            body = body.replace('{invoiceTable}', generateInvoiceTable(customer, lang));
+            
+            return body;
+        }
 
-                card.innerHTML = `
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" checked onchange="toggleCustomer(${customer.id})">
-                        <div class="checkmark">
-                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        function generateInvoiceTable(customer, lang) {
+            const headers = lang === 'tr' 
+                ? ['Fatura No', 'Vade Tarihi', 'Tutar', 'Durum']
+                : ['Invoice No', 'Due Date', 'Amount', 'Status'];
+            
+            let table = `${headers[0].padEnd(20)} ${headers[1].padEnd(15)} ${headers[2].padEnd(15)} ${headers[3]}\n`;
+            table += '-'.repeat(70) + '\n';
+            
+            customer.invoices.forEach(inv => {
+                let status;
+                if (inv.status === 'overdue') {
+                    status = lang === 'tr' ? `${inv.daysOverdue} gün gecikmiş` : `${inv.daysOverdue} days overdue`;
+                } else if (inv.status === 'today') {
+                    status = lang === 'tr' ? 'Bugün' : 'Due today';
+                } else {
+                    status = lang === 'tr' ? `${inv.daysUntilDue} gün kaldı` : `${inv.daysUntilDue} days left`;
+                }
+                
+                const amount = typeof inv.amount === 'number' 
+                    ? inv.amount.toLocaleString(customer.isTR ? 'tr-TR' : 'en-US', {minimumFractionDigits: 2}) + ' ' + (customer.currency || (customer.isTR ? 'TL' : 'USD'))
+                    : inv.amount;
+                
+                table += `${(inv.invoiceNo || '-').padEnd(20)} ${(inv.dueDate || '-').padEnd(15)} ${amount.padEnd(15)} ${status}\n`;
+            });
+            
+            return table;
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function renderCustomerList() {
+            const list = document.getElementById('customerList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = customers.filter(c => {
+                if (currentFilter !== 'all' && c.status !== currentFilter) return false;
+                if (searchTerm && !c.name.toLowerCase().includes(searchTerm) && !c.email.toLowerCase().includes(searchTerm)) return false;
+                return true;
+            });
+
+            // Sort
+            const sortBy = document.getElementById('sortSelect').value;
+            filtered.sort((a, b) => {
+                switch(sortBy) {
+                    case 'amount':
+                        return (b.totalAmount || 0) - (a.totalAmount || 0);
+                    case 'days':
+                        return (b.daysOverdue || 0) - (a.daysOverdue || 0);
+                    case 'lastEmail':
+                        return (a.daysSinceLastEmail || 999) - (b.daysSinceLastEmail || 999);
+                    default: // status
+                        const order = {overdue: 0, today: 1, upcoming: 2};
+                        return order[a.status] - order[b.status];
+                }
+            });
+
+            list.innerHTML = filtered.map((c, idx) => {
+                const isSelected = c.selected !== false;
+                const isActive = customers.indexOf(c) === selectedCustomerIndex;
+                const isExcluded = c.excludeFromReminders === 'TRUE';
+                const emailCount = c.emailCount || 0;
+                const hasNote = c.customerNote || emailEdits[c.id]?.note;
+                
+                return `
+                    <div class="customer-card ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''} ${isExcluded ? 'excluded' : ''}" 
+                         data-id="${c.id}" 
+                         onclick="selectCustomer(${customers.indexOf(c)})">
+                        <div class="customer-header">
+                            <div class="customer-checkbox" onclick="event.stopPropagation()">
+                                <input type="checkbox" ${isSelected ? 'checked' : ''} ${isExcluded ? 'disabled' : ''} 
+                                       onchange="toggleCustomerSelection(${c.id}, this.checked)">
+                            </div>
+                            <div class="customer-info">
+                                <div class="customer-name-row">
+                                    <span class="customer-name">${c.name}</span>
+                                    <span class="customer-amount">${c.amount}</span>
+                                </div>
+                                <div class="customer-meta">
+                                    <span class="status-badge status-${c.status}">
+                                        ${c.status === 'overdue' ? c.daysOverdue + 'd overdue' : 
+                                          c.status === 'today' ? 'Due today' : 
+                                          c.daysUntilDue + 'd left'}
+                                    </span>
+                                    ${c.daysSinceLastEmail ? `<span class="meta-item">📧 ${c.daysSinceLastEmail}d ago</span>` : ''}
+                                    ${emailCount > 0 ? `<span class="reminder-count">${emailCount}${emailCount === 1 ? 'st' : emailCount === 2 ? 'nd' : emailCount === 3 ? 'rd' : 'th'} reminder</span>` : ''}
+                                    ${hasNote ? '<span class="customer-note-indicator">📝</span>' : ''}
+                                    ${isExcluded ? '<span class="meta-item" style="color:#f87171">⛔ Excluded</span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); toggleExpand(${c.id})">
+                            ${c.invoiceCount} invoice${c.invoiceCount > 1 ? 's' : ''} ▼
+                        </button>
+                        <div class="customer-invoices">
+                            ${c.invoices.map(inv => `
+                                <div class="invoice-row">
+                                    <span class="invoice-no">${inv.invoiceNo || '-'}</span>
+                                    <span class="invoice-due">${inv.dueDate}</span>
+                                    <span class="invoice-amount">${typeof inv.amount === 'number' ? inv.amount.toLocaleString() : inv.amount}</span>
+                                    <span class="invoice-days ${inv.status}">
+                                        ${inv.status === 'overdue' ? inv.daysOverdue + 'd overdue' : 
+                                          inv.status === 'today' ? 'Today' : 
+                                          inv.daysUntilDue + 'd left'}
+                                    </span>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
-                    <div class="customer-info">
-                        <div class="customer-name">${customer.name}</div>
-                        <div class="customer-details">${customer.email}</div>
-                    </div>
-                    <span class="status-badge status-${customer.status}">${statusText}</span>
-                    <div class="customer-amount">
-                        <div class="amount-value">${customer.amount}</div>
-                        <div class="invoice-count">${customer.invoiceCount} invoice${customer.invoiceCount > 1 ? 's' : ''}</div>
-                    </div>
                 `;
-                customer.selected = true;
-                list.appendChild(card);
-            });
+            }).join('');
+
+            updateHeaderCount();
         }
 
-        function toggleCustomer(id) {
-            const customer = customers.find(c => c.id === id);
-            if (customer) {
-                customer.selected = !customer.selected;
-                const card = document.querySelector(`.customer-card[data-id="${id}"]`);
-                const checkbox = card.querySelector('input[type="checkbox"]');
-                card.classList.toggle('selected', customer.selected);
-                checkbox.checked = customer.selected;
-                updateStats();
+        function toggleExpand(customerId) {
+            const card = document.querySelector(`.customer-card[data-id="${customerId}"]`);
+            card.classList.toggle('expanded');
+        }
+
+        // ============================================
+        // CUSTOMER SELECTION
+        // ============================================
+        function selectCustomer(index) {
+            if (index < 0 || index >= customers.length) return;
+            
+            selectedCustomerIndex = index;
+            const customer = customers[index];
+            
+            // Update active state in list
+            document.querySelectorAll('.customer-card').forEach((card, i) => {
+                card.classList.toggle('active', customers.indexOf(customers.find(c => c.id == card.dataset.id)) === index);
+            });
+
+            // Show email form
+            document.getElementById('emptyPreview').style.display = 'none';
+            document.getElementById('emailForm').style.display = 'block';
+
+            // Load email data
+            const edit = emailEdits[customer.id];
+            
+            document.getElementById('emailTo').value = customer.email;
+            renderCCTags(edit.cc);
+            setTemplateUI(edit.template);
+            document.getElementById('emailSubject').value = edit.subject;
+            document.getElementById('emailBody').value = edit.body;
+            
+            // Note section
+            const note = edit.note || customer.customerNote || '';
+            document.getElementById('noteContent').textContent = note || 'No note';
+            document.getElementById('noteInput').value = note;
+            document.getElementById('noteSection').style.display = customer.excludeFromReminders === 'TRUE' || note ? 'block' : 'block';
+
+            // Update counter
+            updatePreviewCounter();
+        }
+
+        function navigateCustomer(direction) {
+            const selectedCustomers = customers.filter(c => c.selected !== false);
+            if (selectedCustomers.length === 0) return;
+            
+            let currentInSelected = selectedCustomers.findIndex(c => customers.indexOf(c) === selectedCustomerIndex);
+            if (currentInSelected === -1) currentInSelected = 0;
+            
+            let newIndex = currentInSelected + direction;
+            if (newIndex < 0) newIndex = selectedCustomers.length - 1;
+            if (newIndex >= selectedCustomers.length) newIndex = 0;
+            
+            selectCustomer(customers.indexOf(selectedCustomers[newIndex]));
+        }
+
+        function updatePreviewCounter() {
+            const selectedCustomers = customers.filter(c => c.selected !== false);
+            const currentInSelected = selectedCustomers.findIndex(c => customers.indexOf(c) === selectedCustomerIndex);
+            document.getElementById('previewCounter').textContent = `${currentInSelected + 1} / ${selectedCustomers.length}`;
+            
+            document.getElementById('prevBtn').disabled = selectedCustomers.length <= 1;
+            document.getElementById('nextBtn').disabled = selectedCustomers.length <= 1;
+        }
+
+        // ============================================
+        // CC HANDLING
+        // ============================================
+        function renderCCTags(ccList) {
+            const container = document.getElementById('ccContainer');
+            const input = document.getElementById('ccInput');
+            
+            container.innerHTML = '';
+            ccList.forEach(email => {
+                const tag = document.createElement('span');
+                tag.className = 'cc-tag';
+                tag.innerHTML = `${email} <button onclick="removeCC('${email}')">&times;</button>`;
+                container.appendChild(tag);
+            });
+            container.appendChild(input);
+        }
+
+        function handleCCKeydown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = document.getElementById('ccInput');
+                const email = input.value.trim();
+                
+                if (email && email.includes('@')) {
+                    const customer = customers[selectedCustomerIndex];
+                    if (!emailEdits[customer.id].cc.includes(email)) {
+                        emailEdits[customer.id].cc.push(email);
+                        renderCCTags(emailEdits[customer.id].cc);
+                    }
+                    input.value = '';
+                }
             }
         }
 
-        function selectAll() {
-            customers.forEach(c => {
-                c.selected = true;
-                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
-                card.classList.add('selected');
-                card.querySelector('input[type="checkbox"]').checked = true;
+        function removeCC(email) {
+            const customer = customers[selectedCustomerIndex];
+            emailEdits[customer.id].cc = emailEdits[customer.id].cc.filter(e => e !== email);
+            renderCCTags(emailEdits[customer.id].cc);
+        }
+
+        // ============================================
+        // TEMPLATE HANDLING
+        // ============================================
+        function setTemplate(template) {
+            const customer = customers[selectedCustomerIndex];
+            emailEdits[customer.id].template = template;
+            emailEdits[customer.id].subject = generateSubject(customer, template);
+            emailEdits[customer.id].body = generateBody(customer, template);
+            
+            setTemplateUI(template);
+            document.getElementById('emailSubject').value = emailEdits[customer.id].subject;
+            document.getElementById('emailBody').value = emailEdits[customer.id].body;
+        }
+
+        function setTemplateUI(template) {
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.template === template);
             });
-            updateStats();
         }
 
-        function selectNone() {
-            customers.forEach(c => {
-                c.selected = false;
-                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
-                card.classList.remove('selected');
-                card.querySelector('input[type="checkbox"]').checked = false;
+        function resetCurrentEmail() {
+            const customer = customers[selectedCustomerIndex];
+            const template = emailEdits[customer.id].template;
+            emailEdits[customer.id].subject = generateSubject(customer, template);
+            emailEdits[customer.id].body = generateBody(customer, template);
+            
+            document.getElementById('emailSubject').value = emailEdits[customer.id].subject;
+            document.getElementById('emailBody').value = emailEdits[customer.id].body;
+        }
+
+        function updateCurrentEmail() {
+            const customer = customers[selectedCustomerIndex];
+            emailEdits[customer.id].subject = document.getElementById('emailSubject').value;
+            emailEdits[customer.id].body = document.getElementById('emailBody').value;
+        }
+
+        // ============================================
+        // NOTE HANDLING
+        // ============================================
+        function toggleNoteEdit() {
+            const content = document.getElementById('noteContent');
+            const input = document.getElementById('noteInput');
+            const btn = document.getElementById('noteEditBtn');
+            
+            if (input.style.display === 'none') {
+                content.style.display = 'none';
+                input.style.display = 'block';
+                input.focus();
+                btn.textContent = 'Save';
+            } else {
+                saveNote();
+            }
+        }
+
+        function saveNote() {
+            const customer = customers[selectedCustomerIndex];
+            const input = document.getElementById('noteInput');
+            const content = document.getElementById('noteContent');
+            const btn = document.getElementById('noteEditBtn');
+            
+            emailEdits[customer.id].note = input.value;
+            content.textContent = input.value || 'No note';
+            content.style.display = 'block';
+            input.style.display = 'none';
+            btn.textContent = 'Edit';
+            
+            renderCustomerList();
+        }
+
+        // ============================================
+        // SELECTION & FILTERING
+        // ============================================
+        function toggleCustomerSelection(customerId, selected) {
+            const customer = customers.find(c => c.id === customerId);
+            if (customer) {
+                customer.selected = selected;
+                renderCustomerList();
+                updateSummary();
+                updatePreviewCounter();
+            }
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
             });
-            updateStats();
+            renderCustomerList();
         }
 
-        function selectOverdue() {
-            customers.forEach(c => {
-                c.selected = c.status === 'overdue';
-                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
-                card.classList.toggle('selected', c.selected);
-                card.querySelector('input[type="checkbox"]').checked = c.selected;
+        function filterCustomers() {
+            renderCustomerList();
+        }
+
+        function sortCustomers() {
+            renderCustomerList();
+        }
+
+        // ============================================
+        // SUMMARY
+        // ============================================
+        function updateSummary() {
+            const selected = customers.filter(c => c.selected !== false);
+            
+            let totalTL = 0, totalUSD = 0, totalEUR = 0;
+            
+            selected.forEach(c => {
+                const amount = c.totalAmount || 0;
+                const currency = c.currency || (c.isTR ? 'TL' : 'USD');
+                
+                if (currency === 'TL' || currency === 'TRY') totalTL += amount;
+                else if (currency === 'USD') totalUSD += amount;
+                else if (currency === 'EUR') totalEUR += amount;
             });
-            updateStats();
+
+            document.getElementById('summaryTL').textContent = totalTL.toLocaleString('tr-TR') + ' TL';
+            document.getElementById('summaryTL').style.display = totalTL > 0 ? 'inline' : 'none';
+            
+            document.getElementById('summaryUSD').textContent = '$' + totalUSD.toLocaleString('en-US');
+            document.getElementById('summaryUSD').style.display = totalUSD > 0 ? 'inline' : 'none';
+            
+            document.getElementById('summaryEUR').textContent = '€' + totalEUR.toLocaleString('en-US');
+            document.getElementById('summaryEUR').style.display = totalEUR > 0 ? 'inline' : 'none';
+
+            updateHeaderCount();
         }
 
-        function updateStats() {
-            document.getElementById('overdueCount').textContent = customers.filter(c => c.status === 'overdue').length;
-            document.getElementById('todayCount').textContent = customers.filter(c => c.status === 'today').length;
-            document.getElementById('upcomingCount').textContent = customers.filter(c => c.status === 'upcoming').length;
-            const selected = customers.filter(c => c.selected).length;
-            document.getElementById('selectedCount').textContent = selected;
-            document.getElementById('selectedTotal').textContent = selected;
-            document.getElementById('submitBtn').disabled = selected === 0;
+        function updateHeaderCount() {
+            const count = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE').length;
+            document.getElementById('selectedCountHeader').textContent = count;
+            document.getElementById('sendAllBtn').disabled = count === 0;
         }
 
-        async function submitApproval() {
-            const selectedCustomers = customers.filter(c => c.selected);
-            if (selectedCustomers.length === 0) { alert('Please select at least one customer.'); return; }
+        // ============================================
+        // SEND EMAILS
+        // ============================================
+        function showConfirmModal() {
+            const count = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE').length;
+            document.getElementById('confirmCount').textContent = count;
+            document.getElementById('confirmModal').classList.add('active');
+        }
 
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Sending...';
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        async function sendAllEmails() {
+            hideConfirmModal();
+            document.getElementById('sendingModal').classList.add('active');
+
+            const selectedCustomers = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE');
+            
+            // Prepare payload with all email edits
+            const payload = {
+                action: 'send',
+                customers: selectedCustomers.map(c => ({
+                    ...c,
+                    emailData: {
+                        to: c.email,
+                        cc: emailEdits[c.id].cc,
+                        subject: emailEdits[c.id].subject,
+                        body: emailEdits[c.id].body,
+                        template: emailEdits[c.id].template,
+                        note: emailEdits[c.id].note
+                    }
+                }))
+            };
 
             try {
+                document.getElementById('sendingStatus').textContent = `Sending ${selectedCustomers.length} emails...`;
+                
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'approve',
-                        selectedCustomers: selectedCustomers
-                    })
+                    body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) throw new Error('Failed');
+                const result = await response.json();
                 
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('successMessage').classList.add('active');
+                document.getElementById('sendingModal').classList.remove('active');
+                showReport(result, selectedCustomers);
             } catch (error) {
-                alert('Failed to send: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✉️ Send Reminder Emails';
+                console.error('Error sending emails:', error);
+                document.getElementById('sendingModal').classList.remove('active');
+                alert('Failed to send emails: ' + error.message);
             }
+        }
+
+        // ============================================
+        // REPORT
+        // ============================================
+        function showReport(result, selectedCustomers) {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('reportView').classList.add('active');
+
+            const success = result.success !== false;
+            const successCount = result.successCount || selectedCustomers.length;
+            const totalCount = selectedCustomers.length;
+
+            document.getElementById('reportIcon').classList.toggle('error', !success);
+            document.getElementById('reportTitle').textContent = success ? 'Emails Sent Successfully!' : 'Some Emails Failed';
+            document.getElementById('reportSubtitle').textContent = `${successCount} out of ${totalCount} emails were sent`;
+
+            // Email results
+            const emailResults = document.getElementById('reportEmailResults');
+            emailResults.innerHTML = selectedCustomers.map(c => {
+                const isSuccess = !result.failures || !result.failures.includes(c.id);
+                return `
+                    <div class="report-item">
+                        <div class="report-item-icon ${isSuccess ? 'success' : 'error'}">${isSuccess ? '✓' : '✗'}</div>
+                        <div class="report-item-content">
+                            <div class="report-item-name">${c.name}</div>
+                            <div class="report-item-detail">${c.email}${emailEdits[c.id].cc.length ? ' + CC: ' + emailEdits[c.id].cc.join(', ') : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Sheet results
+            const sheetResults = document.getElementById('reportSheetResults');
+            const invoiceCount = selectedCustomers.reduce((sum, c) => sum + c.invoices.length, 0);
+            sheetResults.innerHTML = `
+                <div class="report-item">
+                    <div class="report-item-icon success">✓</div>
+                    <div class="report-item-content">
+                        <div class="report-item-name">${invoiceCount} invoices updated</div>
+                        <div class="report-item-detail">lastEmailSent, emailCount, lastEmailTemplate updated</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportReport() {
+            // Simple CSV export
+            const selected = customers.filter(c => c.selected !== false);
+            let csv = 'Customer,Email,Amount,Status,Template,CC\n';
+            selected.forEach(c => {
+                csv += `"${c.name}","${c.email}","${c.amount}","${c.status}","${emailEdits[c.id].template}","${emailEdits[c.id].cc.join('; ')}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reminder-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function closeDashboard() {
+            window.close();
+            // If window.close doesn't work, show a message
+            document.getElementById('reportView').innerHTML = `
+                <div class="empty-state" style="height: 100vh;">
+                    <h2>✅ All Done!</h2>
+                    <p>You can close this tab now.</p>
+                </div>
+            `;
         }
     </script>
 </body>
