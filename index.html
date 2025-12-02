@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Approval Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .date {
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .stat-card.overdue .number { color: #f87171; }
+        .stat-card.today .number { color: #fbbf24; }
+        .stat-card.upcoming .number { color: #60a5fa; }
+        .stat-card.selected .number { color: #34d399; }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .customer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .customer-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .customer-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .customer-card.selected {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+
+        .checkbox-wrapper input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-wrapper input:checked + .checkmark {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            border-color: transparent;
+        }
+
+        .checkmark svg {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .checkbox-wrapper input:checked + .checkmark svg {
+            opacity: 1;
+        }
+
+        .customer-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .customer-details {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .customer-amount {
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .amount-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .invoice-count {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-overdue {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+        }
+
+        .status-today {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-upcoming {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+        }
+
+        .submit-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .submit-info {
+            font-size: 0.95rem;
+        }
+
+        .submit-info strong {
+            color: #34d399;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #34d399, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(248, 113, 113, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .no-data svg {
+            width: 60px;
+            height: 60px;
+            stroke: #4b5563;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .customer-card {
+                flex-wrap: wrap;
+            }
+            
+            .customer-amount {
+                width: 100%;
+                text-align: left;
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .status-badge {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Invoice Approval Dashboard</h1>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading invoices...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <p>⚠️ Failed to load data. Please check the webhook URL.</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2>Emails Sent Successfully!</h2>
+            <p style="color: #9ca3af; margin-top: 8px;">You can close this page now.</p>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="stats">
+                <div class="stat-card overdue">
+                    <div class="number" id="overdueCount">0</div>
+                    <div class="label">Overdue</div>
+                </div>
+                <div class="stat-card today">
+                    <div class="number" id="todayCount">0</div>
+                    <div class="label">Due Today</div>
+                </div>
+                <div class="stat-card upcoming">
+                    <div class="number" id="upcomingCount">0</div>
+                    <div class="label">Upcoming</div>
+                </div>
+                <div class="stat-card selected">
+                    <div class="number" id="selectedCount">0</div>
+                    <div class="label">Selected</div>
+                </div>
+            </div>
+
+            <div class="actions-bar">
+                <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+                <button class="btn btn-secondary" onclick="selectNone()">Select None</button>
+                <button class="btn btn-secondary" onclick="selectOverdue()">Select Overdue Only</button>
+            </div>
+
+            <div class="customer-list" id="customerList">
+                <!-- Customer cards will be inserted here -->
+            </div>
+
+            <div class="submit-section">
+                <div class="submit-info">
+                    <strong id="selectedTotal">0</strong> customers selected
+                </div>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitApproval()">
+                    ✉️ Send Reminder Emails
+                </button>
+            </div>
+        </div>
+
+        <div class="no-data" id="noData" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3>No Pending Invoices</h3>
+            <p>All caught up! No invoices need reminders today.</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - UPDATE THIS URL
+        // ============================================
+        const WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE';
+        // ============================================
+
+        let customers = [];
+
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const mainContent = document.getElementById('mainContent');
+            const errorMessage = document.getElementById('errorMessage');
+            const noData = document.getElementById('noData');
+
+            loading.classList.add('active');
+            errorMessage.classList.remove('active');
+
+            try {
+                // Get session ID from URL params or generate new one
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session') || 'default';
+
+                const response = await fetch(`${WEBHOOK_URL}?action=getData&session=${sessionId}`);
+                
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const data = await response.json();
+                customers = data.customers || [];
+
+                loading.classList.remove('active');
+
+                if (customers.length === 0) {
+                    noData.style.display = 'block';
+                    mainContent.style.display = 'none';
+                } else {
+                    noData.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    renderCustomers();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                loading.classList.remove('active');
+                errorMessage.classList.add('active');
+                
+                // For demo/testing: load sample data
+                loadSampleData();
+            }
+        }
+
+        function loadSampleData() {
+            // Sample data for testing without backend
+            customers = [
+                { id: 1, name: 'ABC Technology Ltd', email: 'finance@abc.com', invoiceCount: 2, amount: '45,000.00 TL', status: 'overdue', daysOverdue: 15 },
+                { id: 2, name: 'XYZ International Corp', email: 'ap@xyz.com', invoiceCount: 1, amount: '12,500.00 USD', status: 'overdue', daysOverdue: 8 },
+                { id: 3, name: 'Demo Industries Inc', email: 'billing@demo.com', invoiceCount: 3, amount: '8,200.00 EUR', status: 'overdue', daysOverdue: 3 },
+                { id: 4, name: 'Test Solutions Co', email: 'accounts@test.com', invoiceCount: 1, amount: '5,000.00 TL', status: 'today', daysOverdue: 0 },
+                { id: 5, name: 'Sample Analytics LLC', email: 'finance@sample.com', invoiceCount: 2, amount: '3,400.00 USD', status: 'today', daysOverdue: 0 },
+                { id: 6, name: 'Alpha Digital Inc', email: 'ap@alpha.com', invoiceCount: 1, amount: '2,000.00 TL', status: 'upcoming', daysUntilDue: 3 },
+                { id: 7, name: 'Beta Systems Ltd', email: 'billing@beta.com', invoiceCount: 2, amount: '7,800.00 TL', status: 'upcoming', daysUntilDue: 5 },
+                { id: 8, name: 'Gamma Innovations', email: 'finance@gamma.com', invoiceCount: 1, amount: '4,100.00 USD', status: 'upcoming', daysUntilDue: 7 },
+            ];
+
+            document.getElementById('errorMessage').classList.remove('active');
+            document.getElementById('mainContent').style.display = 'block';
+            renderCustomers();
+            updateStats();
+        }
+
+        function renderCustomers() {
+            const list = document.getElementById('customerList');
+            list.innerHTML = '';
+
+            // Sort: overdue first, then today, then upcoming
+            const statusOrder = { 'overdue': 0, 'today': 1, 'upcoming': 2 };
+            customers.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+
+            customers.forEach((customer, index) => {
+                const card = document.createElement('div');
+                card.className = 'customer-card selected';
+                card.dataset.id = customer.id;
+                card.onclick = (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        toggleCustomer(customer.id);
+                    }
+                };
+
+                let statusText = '';
+                if (customer.status === 'overdue') {
+                    statusText = `${customer.daysOverdue}d overdue`;
+                } else if (customer.status === 'today') {
+                    statusText = 'Due today';
+                } else {
+                    statusText = `${customer.daysUntilDue}d left`;
+                }
+
+                card.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" checked onchange="toggleCustomer(${customer.id})">
+                        <div class="checkmark">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="customer-info">
+                        <div class="customer-name">${customer.name}</div>
+                        <div class="customer-details">${customer.email}</div>
+                    </div>
+                    <span class="status-badge status-${customer.status}">${statusText}</span>
+                    <div class="customer-amount">
+                        <div class="amount-value">${customer.amount}</div>
+                        <div class="invoice-count">${customer.invoiceCount} invoice${customer.invoiceCount > 1 ? 's' : ''}</div>
+                    </div>
+                `;
+
+                customer.selected = true;
+                list.appendChild(card);
+            });
+        }
+
+        function toggleCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+                customer.selected = !customer.selected;
+                
+                const card = document.querySelector(`.customer-card[data-id="${id}"]`);
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                
+                if (customer.selected) {
+                    card.classList.add('selected');
+                    checkbox.checked = true;
+                } else {
+                    card.classList.remove('selected');
+                    checkbox.checked = false;
+                }
+                
+                updateStats();
+            }
+        }
+
+        function selectAll() {
+            customers.forEach(c => {
+                c.selected = true;
+                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
+                card.classList.add('selected');
+                card.querySelector('input[type="checkbox"]').checked = true;
+            });
+            updateStats();
+        }
+
+        function selectNone() {
+            customers.forEach(c => {
+                c.selected = false;
+                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
+                card.classList.remove('selected');
+                card.querySelector('input[type="checkbox"]').checked = false;
+            });
+            updateStats();
+        }
+
+        function selectOverdue() {
+            customers.forEach(c => {
+                c.selected = c.status === 'overdue';
+                const card = document.querySelector(`.customer-card[data-id="${c.id}"]`);
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                
+                if (c.selected) {
+                    card.classList.add('selected');
+                    checkbox.checked = true;
+                } else {
+                    card.classList.remove('selected');
+                    checkbox.checked = false;
+                }
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const overdue = customers.filter(c => c.status === 'overdue').length;
+            const today = customers.filter(c => c.status === 'today').length;
+            const upcoming = customers.filter(c => c.status === 'upcoming').length;
+            const selected = customers.filter(c => c.selected).length;
+
+            document.getElementById('overdueCount').textContent = overdue;
+            document.getElementById('todayCount').textContent = today;
+            document.getElementById('upcomingCount').textContent = upcoming;
+            document.getElementById('selectedCount').textContent = selected;
+            document.getElementById('selectedTotal').textContent = selected;
+
+            document.getElementById('submitBtn').disabled = selected === 0;
+        }
+
+        async function submitApproval() {
+            const selectedCustomers = customers.filter(c => c.selected);
+            
+            if (selectedCustomers.length === 0) {
+                alert('Please select at least one customer.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session') || 'default';
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'approve',
+                        session: sessionId,
+                        selectedCustomerIds: selectedCustomers.map(c => c.id),
+                        selectedCustomers: selectedCustomers
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to submit');
+
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('successMessage').classList.add('active');
+            } catch (error) {
+                console.error('Error submitting:', error);
+                alert('Failed to send. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✉️ Send Reminder Emails';
+            }
+        }
+    </script>
+</body>
+</html>
