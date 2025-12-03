@@ -137,6 +137,30 @@
             font-weight: 600;
             color: #323130;
             margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .bulk-btn {
+            padding: 4px 8px;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
+            background: white;
+            color: #605e5c;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .bulk-btn:hover {
+            background: #f3f2f1;
+            border-color: #8a8886;
         }
 
         .search-box {
@@ -199,14 +223,19 @@
             overflow-y: auto;
         }
 
+        .customer-list:focus {
+            outline: none;
+        }
+
         .customer-item {
             padding: 12px 16px;
             border-bottom: 1px solid #edebe9;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.15s;
             display: flex;
             align-items: flex-start;
             gap: 12px;
+            border-left: 3px solid transparent;
         }
 
         .customer-item:hover {
@@ -214,12 +243,17 @@
         }
 
         .customer-item.selected {
-            background: #deecf9;
+            background: #e6f2fb;
         }
 
         .customer-item.active {
-            background: #c7e0f4;
+            background: #cce4f7;
             border-left: 3px solid #0078d4;
+            box-shadow: inset 0 0 0 1px rgba(0,120,212,0.2);
+        }
+
+        .customer-item.active .customer-name {
+            color: #0078d4;
         }
 
         .customer-item.excluded {
@@ -256,6 +290,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            transition: color 0.15s;
         }
 
         .customer-amount {
@@ -291,6 +326,11 @@
             font-size: 0.7rem;
             background: #f3f2f1;
             color: #605e5c;
+        }
+
+        .reminder-badge.warning {
+            background: #fff4ce;
+            color: #8a6914;
         }
 
         .customer-invoices {
@@ -341,6 +381,19 @@
         .summary-value.tl { color: #107c10; }
         .summary-value.usd { color: #0078d4; }
         .summary-value.eur { color: #8764b8; }
+
+        .keyboard-hint {
+            font-size: 0.7rem;
+            color: #a19f9d;
+            margin-top: 8px;
+        }
+
+        .keyboard-hint kbd {
+            background: #e1dfdd;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-family: inherit;
+        }
 
         /* Right Panel - Email Preview */
         .right-panel {
@@ -406,6 +459,40 @@
             background: white;
             border: 1px solid #e1dfdd;
             border-radius: 2px;
+        }
+
+        .escalation-warning {
+            padding: 12px 16px;
+            background: #fff4ce;
+            border-bottom: 1px solid #e1dfdd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .escalation-text {
+            font-size: 0.85rem;
+            color: #8a6914;
+        }
+
+        .escalation-text strong {
+            color: #323130;
+        }
+
+        .escalation-btn {
+            padding: 6px 12px;
+            border: 1px solid #8a6914;
+            border-radius: 2px;
+            background: white;
+            color: #8a6914;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .escalation-btn:hover {
+            background: #fff4ce;
         }
 
         .email-header {
@@ -480,6 +567,11 @@
             color: #0078d4;
         }
 
+        .cc-tag.sales-rep {
+            background: #fff4ce;
+            color: #8a6914;
+        }
+
         .cc-tag button {
             background: none;
             border: none;
@@ -509,10 +601,27 @@
             background: #faf9f8;
         }
 
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
         .template-label {
             font-size: 0.8rem;
             color: #605e5c;
-            margin-bottom: 8px;
+        }
+
+        .reset-link {
+            font-size: 0.75rem;
+            color: #0078d4;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .reset-link:hover {
+            text-decoration: underline;
         }
 
         .template-buttons {
@@ -559,10 +668,25 @@
             padding: 16px;
         }
 
+        .email-body-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
         .email-body-label {
             font-size: 0.8rem;
             color: #605e5c;
-            margin-bottom: 8px;
+        }
+
+        .modified-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #fff4ce;
+            color: #8a6914;
+            font-size: 0.7rem;
+            border-radius: 2px;
         }
 
         .email-textarea {
@@ -581,16 +705,6 @@
         .email-textarea:focus {
             outline: none;
             border-color: #0078d4;
-        }
-
-        .modified-indicator {
-            display: inline-block;
-            padding: 2px 6px;
-            background: #fff4ce;
-            color: #8a6914;
-            font-size: 0.7rem;
-            border-radius: 2px;
-            margin-left: 8px;
         }
 
         /* Customer Note */
@@ -670,15 +784,6 @@
 
         .btn-secondary:hover {
             background: #f3f2f1;
-        }
-
-        .btn-danger {
-            background: #d13438;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #a4262c;
         }
 
         /* Empty State */
@@ -912,7 +1017,7 @@
         <div class="main-container">
             <!-- Sidebar -->
             <div class="sidebar">
-                <div class="sidebar-item active">
+                <div class="sidebar-item active" onclick="setFilter('all')">
                     <svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Dashboard
                 </div>
@@ -944,7 +1049,14 @@
             <!-- Left Panel - Customer List -->
             <div class="left-panel">
                 <div class="panel-header">
-                    <div class="panel-title">Customers</div>
+                    <div class="panel-title">
+                        <span>Customers</span>
+                        <div class="bulk-actions">
+                            <button class="bulk-btn" onclick="selectAll()">Select All</button>
+                            <button class="bulk-btn" onclick="deselectAll()">Deselect</button>
+                            <button class="bulk-btn" onclick="selectOverdue()">Overdue Only</button>
+                        </div>
+                    </div>
                     <div class="search-box">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -960,7 +1072,7 @@
                     </div>
                 </div>
 
-                <div class="customer-list" id="customerList">
+                <div class="customer-list" id="customerList" tabindex="0">
                     <div class="loading-state" id="listLoading">
                         <div class="spinner"></div>
                         <p>Loading customers...</p>
@@ -975,6 +1087,9 @@
                         <span class="summary-value tl" id="summaryTL" style="display:none">0 TL</span>
                         <span class="summary-value usd" id="summaryUSD" style="display:none">$0</span>
                         <span class="summary-value eur" id="summaryEUR" style="display:none">€0</span>
+                    </div>
+                    <div class="keyboard-hint">
+                        <kbd>↑</kbd><kbd>↓</kbd> navigate · <kbd>Space</kbd> toggle · <kbd>Ctrl+A</kbd> select all
                     </div>
                 </div>
             </div>
@@ -996,7 +1111,7 @@
                     <div>
                         <button class="toolbar-btn" onclick="resetCurrentEmail()">
                             <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                            Reset
+                            Reset Template
                         </button>
                     </div>
                 </div>
@@ -1011,6 +1126,14 @@
                     </div>
 
                     <div class="email-card" id="emailCard" style="display: none;">
+                        <!-- Escalation Warning - shown for 3+ reminders -->
+                        <div class="escalation-warning" id="escalationWarning" style="display: none;">
+                            <span class="escalation-text">
+                                ⚠️ This is the <strong id="reminderNumber">3rd</strong> reminder. Consider adding sales rep to CC.
+                            </span>
+                            <button class="escalation-btn" onclick="addSalesRepCC()">+ Add Sales Rep</button>
+                        </div>
+
                         <div class="email-header">
                             <div class="email-field">
                                 <label class="email-label">To:</label>
@@ -1029,7 +1152,10 @@
                         </div>
 
                         <div class="template-section">
-                            <div class="template-label">Template <span class="modified-indicator" id="modifiedIndicator" style="display:none">Modified</span></div>
+                            <div class="template-header">
+                                <span class="template-label">Template</span>
+                                <a class="reset-link" onclick="resetCurrentEmail()">Reset to original</a>
+                            </div>
                             <div class="template-buttons">
                                 <button class="template-btn soft" data-template="soft" onclick="setTemplate('soft')">
                                     <div class="template-name">Soft</div>
@@ -1047,7 +1173,10 @@
                         </div>
 
                         <div class="email-body">
-                            <div class="email-body-label">Message</div>
+                            <div class="email-body-header">
+                                <span class="email-body-label">Message</span>
+                                <span class="modified-indicator" id="modifiedIndicator" style="display:none">Modified</span>
+                            </div>
                             <textarea class="email-textarea" id="emailBody" oninput="markAsModified()"></textarea>
                         </div>
 
@@ -1229,6 +1358,81 @@ Vispera AR Team`
 
         document.addEventListener('DOMContentLoaded', loadData);
 
+        // Keyboard shortcuts
+        document.addEventListener('keydown', handleKeyboard);
+
+        function handleKeyboard(e) {
+            // Only handle if not typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            const list = document.getElementById('customerList');
+            const visibleCustomers = getFilteredCustomers();
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (selectedCustomerIndex > 0) {
+                        const prevIndex = findPrevVisibleIndex(selectedCustomerIndex);
+                        if (prevIndex >= 0) selectCustomer(prevIndex);
+                    }
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (selectedCustomerIndex < customers.length - 1) {
+                        const nextIndex = findNextVisibleIndex(selectedCustomerIndex);
+                        if (nextIndex >= 0) selectCustomer(nextIndex);
+                    }
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    if (selectedCustomerIndex >= 0) {
+                        const customer = customers[selectedCustomerIndex];
+                        if (customer.excludeFromReminders !== 'TRUE') {
+                            customer.selected = !customer.selected;
+                            renderCustomerList();
+                            updateSummary();
+                        }
+                    }
+                    break;
+                case 'a':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        selectAll();
+                    }
+                    break;
+                case 'Escape':
+                    deselectAll();
+                    break;
+            }
+        }
+
+        function findNextVisibleIndex(currentIndex) {
+            const filtered = getFilteredCustomers();
+            const currentFiltered = filtered.findIndex(c => customers.indexOf(c) === currentIndex);
+            if (currentFiltered < filtered.length - 1) {
+                return customers.indexOf(filtered[currentFiltered + 1]);
+            }
+            return -1;
+        }
+
+        function findPrevVisibleIndex(currentIndex) {
+            const filtered = getFilteredCustomers();
+            const currentFiltered = filtered.findIndex(c => customers.indexOf(c) === currentIndex);
+            if (currentFiltered > 0) {
+                return customers.indexOf(filtered[currentFiltered - 1]);
+            }
+            return -1;
+        }
+
+        function getFilteredCustomers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            return customers.filter(c => {
+                if (currentFilter !== 'all' && c.status !== currentFilter) return false;
+                if (searchTerm && !c.name.toLowerCase().includes(searchTerm) && !c.email.toLowerCase().includes(searchTerm)) return false;
+                return true;
+            });
+        }
+
         // ============================================
         // DATA LOADING
         // ============================================
@@ -1345,30 +1549,25 @@ Vispera AR Team`
             let tableRows = [];
             
             bodyLines.forEach(line => {
-                // Detect table header
                 if (line.includes('Fatura No') || line.includes('Invoice No')) {
                     inTable = true;
                     tableRows = [];
                     return;
                 }
                 
-                // Skip separator line
                 if (line.match(/^-+$/)) return;
                 
-                // Table row
                 if (inTable && line.includes('|')) {
                     tableRows.push(line.split('|').map(s => s.trim()));
                     return;
                 }
                 
-                // End of table
                 if (inTable && !line.includes('|') && line.trim()) {
                     html += generateHTMLTable(tableRows, customer, lang);
                     inTable = false;
                     tableRows = [];
                 }
                 
-                // Regular paragraph
                 if (!inTable) {
                     if (line.trim()) {
                         html += '<p style="margin: 0 0 12px 0;">' + escapeHtml(line) + '</p>';
@@ -1378,7 +1577,6 @@ Vispera AR Team`
                 }
             });
             
-            // If we ended with table
             if (inTable && tableRows.length > 0) {
                 html += generateHTMLTable(tableRows, customer, lang);
             }
@@ -1394,20 +1592,17 @@ Vispera AR Team`
             
             let html = '<table style="border-collapse: collapse; width: 100%; max-width: 600px; margin: 16px 0; font-size: 13px;">';
             
-            // Header
             html += '<thead><tr>';
             headers.forEach(h => {
                 html += `<th style="border: 1px solid #e1dfdd; padding: 10px 12px; background: #f3f2f1; text-align: left; font-weight: 600; color: #323130;">${h}</th>`;
             });
             html += '</tr></thead>';
             
-            // Body
             html += '<tbody>';
             rows.forEach(row => {
                 html += '<tr>';
                 row.forEach((cell, idx) => {
                     let style = 'border: 1px solid #e1dfdd; padding: 8px 12px; color: #323130;';
-                    // Status column styling
                     if (idx === 3) {
                         if (cell.includes('gecikmiş') || cell.includes('overdue')) {
                             style += ' color: #d13438; font-weight: 500;';
@@ -1437,13 +1632,7 @@ Vispera AR Team`
         // ============================================
         function renderCustomerList() {
             const list = document.getElementById('customerList');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            let filtered = customers.filter(c => {
-                if (currentFilter !== 'all' && c.status !== currentFilter) return false;
-                if (searchTerm && !c.name.toLowerCase().includes(searchTerm) && !c.email.toLowerCase().includes(searchTerm)) return false;
-                return true;
-            });
+            const filtered = getFilteredCustomers();
 
             if (filtered.length === 0) {
                 list.innerHTML = `
@@ -1461,6 +1650,7 @@ Vispera AR Team`
                 const emailCount = c.emailCount || 0;
                 const edit = emailEdits[c.id];
                 const hasNote = c.customerNote || edit?.note;
+                const isEscalation = emailCount >= 2;
                 
                 return `
                     <div class="customer-item ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''} ${isExcluded ? 'excluded' : ''}" 
@@ -1481,7 +1671,7 @@ Vispera AR Team`
                                       c.status === 'today' ? 'Due today' : 
                                       c.daysUntilDue + ' days left'}
                                 </span>
-                                ${emailCount > 0 ? `<span class="reminder-badge">${emailCount}x sent</span>` : ''}
+                                ${emailCount > 0 ? `<span class="reminder-badge ${isEscalation ? 'warning' : ''}">${emailCount}x sent</span>` : ''}
                                 ${hasNote ? '<span style="color:#8a6914">📝</span>' : ''}
                                 ${isExcluded ? '<span style="color:#d13438">Excluded</span>' : ''}
                             </div>
@@ -1520,6 +1710,34 @@ Vispera AR Team`
         }
 
         // ============================================
+        // BULK ACTIONS
+        // ============================================
+        function selectAll() {
+            const filtered = getFilteredCustomers();
+            filtered.forEach(c => {
+                if (c.excludeFromReminders !== 'TRUE') c.selected = true;
+            });
+            renderCustomerList();
+            updateSummary();
+        }
+
+        function deselectAll() {
+            customers.forEach(c => c.selected = false);
+            renderCustomerList();
+            updateSummary();
+        }
+
+        function selectOverdue() {
+            customers.forEach(c => {
+                if (c.excludeFromReminders !== 'TRUE') {
+                    c.selected = c.status === 'overdue';
+                }
+            });
+            renderCustomerList();
+            updateSummary();
+        }
+
+        // ============================================
         // CUSTOMER SELECTION
         // ============================================
         function selectCustomer(index) {
@@ -1531,8 +1749,28 @@ Vispera AR Team`
             
             renderCustomerList();
 
+            // Scroll active item into view
+            setTimeout(() => {
+                const activeItem = document.querySelector('.customer-item.active');
+                if (activeItem) {
+                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 0);
+
             document.getElementById('emptyPreview').style.display = 'none';
             document.getElementById('emailCard').style.display = 'block';
+
+            // Show escalation warning for 3+ reminders
+            const emailCount = customer.emailCount || 0;
+            const escalationWarning = document.getElementById('escalationWarning');
+            if (emailCount >= 2) {
+                escalationWarning.style.display = 'flex';
+                const ordinal = emailCount + 1;
+                const suffix = ordinal === 1 ? 'st' : ordinal === 2 ? 'nd' : ordinal === 3 ? 'rd' : 'th';
+                document.getElementById('reminderNumber').textContent = `${ordinal}${suffix}`;
+            } else {
+                escalationWarning.style.display = 'none';
+            }
 
             document.getElementById('emailTo').value = customer.email;
             renderCCTags(edit.cc);
@@ -1542,7 +1780,6 @@ Vispera AR Team`
             
             document.getElementById('modifiedIndicator').style.display = edit.isModified ? 'inline-block' : 'none';
             
-            // Note section
             const note = edit.note || customer.customerNote || '';
             if (note) {
                 document.getElementById('noteSection').style.display = 'block';
@@ -1589,6 +1826,9 @@ Vispera AR Team`
             ccList.forEach(email => {
                 const tag = document.createElement('span');
                 tag.className = 'cc-tag';
+                if (email.includes('sales') || email.includes('satis')) {
+                    tag.classList.add('sales-rep');
+                }
                 tag.innerHTML = `${email} <button onclick="removeCC('${email}')">&times;</button>`;
                 container.appendChild(tag);
             });
@@ -1616,6 +1856,18 @@ Vispera AR Team`
             const customer = customers[selectedCustomerIndex];
             emailEdits[customer.id].cc = emailEdits[customer.id].cc.filter(e => e !== email);
             renderCCTags(emailEdits[customer.id].cc);
+        }
+
+        function addSalesRepCC() {
+            const customer = customers[selectedCustomerIndex];
+            // Prompt for sales rep email
+            const salesEmail = prompt('Enter sales rep email:');
+            if (salesEmail && salesEmail.includes('@')) {
+                if (!emailEdits[customer.id].cc.includes(salesEmail)) {
+                    emailEdits[customer.id].cc.push(salesEmail);
+                    renderCCTags(emailEdits[customer.id].cc);
+                }
+            }
         }
 
         // ============================================
@@ -1649,7 +1901,6 @@ Vispera AR Team`
             edit.subject = document.getElementById('emailSubject').value;
             edit.body = document.getElementById('emailBody').value;
             
-            // Check if actually modified from original
             edit.isModified = edit.body !== edit.originalBody;
             document.getElementById('modifiedIndicator').style.display = edit.isModified ? 'inline-block' : 'none';
         }
@@ -1781,12 +2032,10 @@ Vispera AR Team`
 
             const selectedCustomers = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE');
             
-            // Prepare payload with HTML email bodies and custom tracking
             const payload = {
                 action: 'send',
                 customers: selectedCustomers.map(c => {
                     const edit = emailEdits[c.id];
-                    // Determine template label with (Custom) suffix if modified
                     let templateLabel = edit.template.charAt(0).toUpperCase() + edit.template.slice(1);
                     if (edit.isModified) {
                         templateLabel += ' (Custom)';
