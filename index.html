@@ -3,63 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Reminder Dashboard</title>
+    <title>Invoice Reminder Dashboard - Vispera AR</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f2f1;
             min-height: 100vh;
-            color: #e4e4e7;
+            color: #323130;
         }
 
-        /* Header */
+        /* Header - Outlook Style */
         .header {
-            padding: 16px 24px;
-            background: rgba(0,0,0,0.3);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 0 16px;
+            background: #0078d4;
+            height: 48px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: white;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .header h1 {
-            font-size: 1.4rem;
+            font-size: 1rem;
             font-weight: 600;
-            background: linear-gradient(90deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .header-actions {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
+        }
+
+        .header-date {
+            font-size: 0.8rem;
+            opacity: 0.9;
         }
 
         /* Main Layout */
         .main-container {
             display: flex;
-            height: calc(100vh - 65px);
+            height: calc(100vh - 48px);
+        }
+
+        /* Left Sidebar - Navigation */
+        .sidebar {
+            width: 200px;
+            background: #1b1b1f;
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-item {
+            padding: 10px 16px;
+            color: #d1d1d1;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sidebar-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-item svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 8px 0;
+        }
+
+        .sidebar-section {
+            padding: 8px 16px 4px;
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-count {
+            margin-left: auto;
+            background: #0078d4;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .sidebar-count.urgent {
+            background: #d13438;
         }
 
         /* Left Panel - Customer List */
         .left-panel {
-            width: 420px;
-            min-width: 420px;
-            border-right: 1px solid rgba(255,255,255,0.1);
+            width: 380px;
+            min-width: 380px;
+            border-right: 1px solid #e1dfdd;
             display: flex;
             flex-direction: column;
-            background: rgba(0,0,0,0.2);
+            background: white;
         }
 
-        .filters-bar {
-            padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e1dfdd;
+            background: #faf9f8;
+        }
+
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 12px;
         }
 
         .search-box {
@@ -68,108 +145,85 @@
 
         .search-box input {
             width: 100%;
-            padding: 10px 12px 10px 36px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            color: #e4e4e7;
-            font-size: 0.9rem;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #8a8886;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
+            font-size: 0.85rem;
         }
 
-        .search-box input::placeholder { color: #9ca3af; }
+        .search-box input:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+
+        .search-box input::placeholder { color: #a19f9d; }
 
         .search-box svg {
             position: absolute;
             left: 10px;
             top: 50%;
             transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            stroke: #9ca3af;
+            width: 16px;
+            height: 16px;
+            stroke: #605e5c;
         }
 
-        .filter-buttons {
+        .filters-row {
             display: flex;
-            gap: 8px;
+            gap: 4px;
+            margin-top: 12px;
         }
 
         .filter-btn {
             padding: 6px 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 6px;
-            background: transparent;
-            color: #9ca3af;
+            border: 1px solid #8a8886;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
-        .filter-btn:hover { background: rgba(255,255,255,0.05); }
-        .filter-btn.active { background: rgba(96,165,250,0.2); color: #60a5fa; border-color: #60a5fa; }
-        .filter-btn.overdue.active { background: rgba(248,113,113,0.2); color: #f87171; border-color: #f87171; }
-        .filter-btn.today.active { background: rgba(251,191,36,0.2); color: #fbbf24; border-color: #fbbf24; }
-        .filter-btn.upcoming.active { background: rgba(96,165,250,0.2); color: #60a5fa; border-color: #60a5fa; }
-
-        .sort-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .sort-row label {
-            font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
-        .sort-select {
-            padding: 4px 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 4px;
-            background: rgba(255,255,255,0.05);
-            color: #e4e4e7;
-            font-size: 0.8rem;
-        }
+        .filter-btn:hover { background: #f3f2f1; }
+        .filter-btn.active { background: #0078d4; color: white; border-color: #0078d4; }
+        .filter-btn.overdue.active { background: #d13438; border-color: #d13438; }
+        .filter-btn.today.active { background: #ffaa44; border-color: #ffaa44; color: #323130; }
+        .filter-btn.upcoming.active { background: #0078d4; border-color: #0078d4; }
 
         /* Customer List */
         .customer-list {
             flex: 1;
             overflow-y: auto;
-            padding: 8px;
         }
 
-        .customer-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            margin-bottom: 8px;
+        .customer-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #edebe9;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .customer-card:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.15);
-        }
-
-        .customer-card.selected {
-            background: rgba(96,165,250,0.1);
-            border-color: rgba(96,165,250,0.3);
-        }
-
-        .customer-card.active {
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 1px #60a5fa;
-        }
-
-        .customer-card.excluded {
-            opacity: 0.5;
-        }
-
-        .customer-header {
-            padding: 12px;
+            transition: background 0.15s;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .customer-item:hover {
+            background: #f3f2f1;
+        }
+
+        .customer-item.selected {
+            background: #deecf9;
+        }
+
+        .customer-item.active {
+            background: #c7e0f4;
+            border-left: 3px solid #0078d4;
+        }
+
+        .customer-item.excluded {
+            opacity: 0.5;
         }
 
         .customer-checkbox {
@@ -177,10 +231,10 @@
         }
 
         .customer-checkbox input {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
-            accent-color: #60a5fa;
+            accent-color: #0078d4;
         }
 
         .customer-info {
@@ -197,15 +251,17 @@
 
         .customer-name {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            color: #323130;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .customer-amount {
-            font-weight: 700;
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #323130;
             white-space: nowrap;
         }
 
@@ -213,419 +269,469 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 6px;
+            margin-top: 4px;
             font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            color: #605e5c;
         }
 
         .status-badge {
             padding: 2px 8px;
-            border-radius: 10px;
+            border-radius: 2px;
             font-size: 0.7rem;
             font-weight: 600;
-            text-transform: uppercase;
         }
 
-        .status-overdue { background: rgba(248,113,113,0.2); color: #f87171; }
-        .status-today { background: rgba(251,191,36,0.2); color: #fbbf24; }
-        .status-upcoming { background: rgba(96,165,250,0.2); color: #60a5fa; }
+        .status-overdue { background: #fde7e9; color: #a4262c; }
+        .status-today { background: #fff4ce; color: #8a6914; }
+        .status-upcoming { background: #deecf9; color: #0078d4; }
 
-        .reminder-count {
+        .reminder-badge {
             padding: 2px 6px;
-            border-radius: 4px;
+            border-radius: 2px;
             font-size: 0.7rem;
-            background: rgba(139,92,246,0.2);
-            color: #a78bfa;
-        }
-
-        .customer-note-indicator {
-            color: #fbbf24;
+            background: #f3f2f1;
+            color: #605e5c;
         }
 
         .customer-invoices {
-            padding: 0 12px 12px 40px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #edebe9;
             display: none;
         }
 
-        .customer-card.expanded .customer-invoices {
+        .customer-item.expanded .customer-invoices {
             display: block;
         }
 
         .invoice-row {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 4px 0;
             font-size: 0.8rem;
+            color: #605e5c;
         }
 
-        .invoice-row:first-child {
-            border-top: none;
-        }
-
-        .invoice-no { color: #9ca3af; }
-        .invoice-due { color: #9ca3af; }
-        .invoice-amount { font-weight: 500; }
-        .invoice-days { font-size: 0.75rem; }
-        .invoice-days.overdue { color: #f87171; }
-        .invoice-days.today { color: #fbbf24; }
-        .invoice-days.upcoming { color: #60a5fa; }
-
-        .expand-btn {
-            padding: 4px 12px;
-            margin: 0 12px 8px 40px;
-            border: none;
-            background: rgba(255,255,255,0.05);
-            color: #9ca3af;
+        .expand-toggle {
             font-size: 0.75rem;
-            border-radius: 4px;
+            color: #0078d4;
             cursor: pointer;
+            margin-top: 4px;
         }
 
-        .expand-btn:hover { background: rgba(255,255,255,0.1); }
+        .expand-toggle:hover {
+            text-decoration: underline;
+        }
 
         /* Summary Footer */
         .list-footer {
-            padding: 16px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            border-top: 1px solid #e1dfdd;
+            background: #faf9f8;
         }
 
-        .summary-title {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            margin-bottom: 8px;
-        }
-
-        .summary-amounts {
+        .summary-row {
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            justify-content: space-between;
+            font-size: 0.8rem;
         }
 
-        .summary-item {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .summary-item.tl { color: #34d399; }
-        .summary-item.usd { color: #60a5fa; }
-        .summary-item.eur { color: #fbbf24; }
+        .summary-label { color: #605e5c; }
+        .summary-value { font-weight: 600; color: #323130; }
+        .summary-value.tl { color: #107c10; }
+        .summary-value.usd { color: #0078d4; }
+        .summary-value.eur { color: #8764b8; }
 
         /* Right Panel - Email Preview */
         .right-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: rgba(0,0,0,0.1);
+            background: #faf9f8;
         }
 
-        .preview-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        .preview-toolbar {
+            padding: 8px 16px;
+            border-bottom: 1px solid #e1dfdd;
+            background: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .preview-nav {
+        .toolbar-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .nav-btn {
-            padding: 8px 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 6px;
-            background: transparent;
-            color: #e4e4e7;
+        .toolbar-btn {
+            padding: 6px 12px;
+            border: 1px solid #8a8886;
+            border-radius: 2px;
+            background: white;
+            color: #323130;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .nav-btn:hover { background: rgba(255,255,255,0.1); }
-        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .toolbar-btn:hover { background: #f3f2f1; }
+        .toolbar-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .preview-counter {
-            font-size: 0.9rem;
-            color: #9ca3af;
+        .toolbar-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
         }
 
+        .nav-counter {
+            font-size: 0.85rem;
+            color: #605e5c;
+            padding: 0 12px;
+        }
+
+        /* Email Form */
         .preview-content {
             flex: 1;
             overflow-y: auto;
-            padding: 24px;
+            padding: 20px;
         }
 
-        .email-form {
+        .email-card {
             max-width: 700px;
             margin: 0 auto;
+            background: white;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .email-header {
+            padding: 16px;
+            border-bottom: 1px solid #e1dfdd;
         }
 
-        .form-label {
-            display: block;
+        .email-field {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .email-field:last-child { margin-bottom: 0; }
+
+        .email-label {
+            width: 80px;
             font-size: 0.8rem;
-            color: #9ca3af;
-            margin-bottom: 6px;
-            font-weight: 500;
+            color: #605e5c;
+            padding-top: 8px;
+            flex-shrink: 0;
         }
 
-        .form-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            color: #e4e4e7;
+        .email-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
             font-size: 0.9rem;
+            color: #323130;
+            background: #faf9f8;
         }
 
-        .form-input:focus {
+        .email-input:focus {
             outline: none;
-            border-color: #60a5fa;
+            border-color: #0078d4;
+            background: white;
         }
 
-        .form-input:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .email-input.readonly {
+            background: #f3f2f1;
+            color: #605e5c;
         }
 
-        .form-input.readonly {
-            background: rgba(255,255,255,0.02);
-        }
-
+        /* CC Tags */
         .cc-container {
+            flex: 1;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            padding: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            min-height: 44px;
+            gap: 4px;
+            padding: 6px 8px;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
+            background: #faf9f8;
+            min-height: 36px;
+            align-items: center;
+        }
+
+        .cc-container:focus-within {
+            border-color: #0078d4;
+            background: white;
         }
 
         .cc-tag {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            background: rgba(96,165,250,0.2);
-            border-radius: 4px;
-            font-size: 0.85rem;
+            gap: 4px;
+            padding: 2px 8px;
+            background: #deecf9;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            color: #0078d4;
         }
 
         .cc-tag button {
             background: none;
             border: none;
-            color: #f87171;
+            color: #605e5c;
             cursor: pointer;
             font-size: 1rem;
             line-height: 1;
+            padding: 0;
         }
+
+        .cc-tag button:hover { color: #d13438; }
 
         .cc-input {
             flex: 1;
-            min-width: 150px;
+            min-width: 120px;
             border: none;
             background: transparent;
-            color: #e4e4e7;
             font-size: 0.85rem;
             outline: none;
+            padding: 4px;
         }
 
-        .template-select {
+        /* Template Selection */
+        .template-section {
+            padding: 16px;
+            border-bottom: 1px solid #e1dfdd;
+            background: #faf9f8;
+        }
+
+        .template-label {
+            font-size: 0.8rem;
+            color: #605e5c;
+            margin-bottom: 8px;
+        }
+
+        .template-buttons {
             display: flex;
             gap: 8px;
         }
 
         .template-btn {
             flex: 1;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: transparent;
-            color: #9ca3af;
+            padding: 10px;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
+            background: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             text-align: center;
         }
 
-        .template-btn:hover { background: rgba(255,255,255,0.05); }
+        .template-btn:hover { background: #f3f2f1; }
 
         .template-btn.active {
-            border-color: #60a5fa;
-            background: rgba(96,165,250,0.1);
-            color: #60a5fa;
+            border-color: #0078d4;
+            background: #deecf9;
         }
 
-        .template-btn.soft.active { border-color: #34d399; background: rgba(52,211,153,0.1); color: #34d399; }
-        .template-btn.firm.active { border-color: #fbbf24; background: rgba(251,191,36,0.1); color: #fbbf24; }
-        .template-btn.final.active { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
+        .template-btn.soft.active { border-color: #107c10; background: #dff6dd; }
+        .template-btn.firm.active { border-color: #ffaa44; background: #fff4ce; }
+        .template-btn.final.active { border-color: #d13438; background: #fde7e9; }
 
-        .template-name { font-weight: 600; font-size: 0.9rem; }
-        .template-desc { font-size: 0.7rem; margin-top: 4px; opacity: 0.7; }
+        .template-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #323130;
+        }
 
-        .form-textarea {
+        .template-desc {
+            font-size: 0.7rem;
+            color: #605e5c;
+            margin-top: 2px;
+        }
+
+        /* Email Body */
+        .email-body {
+            padding: 16px;
+        }
+
+        .email-body-label {
+            font-size: 0.8rem;
+            color: #605e5c;
+            margin-bottom: 8px;
+        }
+
+        .email-textarea {
             width: 100%;
             min-height: 300px;
-            padding: 16px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            color: #e4e4e7;
+            padding: 12px;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
             font-size: 0.9rem;
-            font-family: inherit;
-            line-height: 1.6;
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1.5;
             resize: vertical;
+            color: #323130;
         }
 
-        .form-textarea:focus {
+        .email-textarea:focus {
             outline: none;
-            border-color: #60a5fa;
+            border-color: #0078d4;
         }
 
-        .customer-note-section {
-            margin-top: 24px;
-            padding: 16px;
-            background: rgba(251,191,36,0.1);
-            border: 1px solid rgba(251,191,36,0.3);
-            border-radius: 8px;
+        .modified-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #fff4ce;
+            color: #8a6914;
+            font-size: 0.7rem;
+            border-radius: 2px;
+            margin-left: 8px;
+        }
+
+        /* Customer Note */
+        .note-section {
+            padding: 12px 16px;
+            background: #fff4ce;
+            border-top: 1px solid #e1dfdd;
         }
 
         .note-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
         }
 
         .note-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: #fbbf24;
+            color: #8a6914;
         }
 
         .note-edit-btn {
             padding: 4px 8px;
-            border: 1px solid rgba(251,191,36,0.5);
-            border-radius: 4px;
+            border: 1px solid #8a6914;
+            border-radius: 2px;
             background: transparent;
-            color: #fbbf24;
+            color: #8a6914;
             font-size: 0.75rem;
             cursor: pointer;
         }
 
         .note-content {
             font-size: 0.85rem;
-            color: #e4e4e7;
+            color: #323130;
+            margin-top: 4px;
         }
 
         .note-input {
             width: 100%;
             padding: 8px;
-            border: 1px solid rgba(251,191,36,0.5);
-            border-radius: 4px;
-            background: rgba(0,0,0,0.2);
-            color: #e4e4e7;
+            border: 1px solid #8a6914;
+            border-radius: 2px;
             font-size: 0.85rem;
+            margin-top: 8px;
         }
 
         /* Buttons */
         .btn {
-            padding: 12px 24px;
+            padding: 8px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            border-radius: 2px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: #0078d4;
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+            background: #106ebe;
         }
 
         .btn-primary:disabled {
-            opacity: 0.5;
+            background: #c8c6c4;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: #e4e4e7;
-            border: 1px solid rgba(255,255,255,0.15);
+            background: white;
+            color: #323130;
+            border: 1px solid #8a8886;
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
+            background: #f3f2f1;
         }
 
-        /* Loading & States */
-        .loading-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #9ca3af;
+        .btn-danger {
+            background: #d13438;
+            color: white;
         }
 
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #60a5fa;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+        .btn-danger:hover {
+            background: #a4262c;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* Empty State */
         .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #9ca3af;
+            color: #605e5c;
             text-align: center;
-            padding: 24px;
+            padding: 40px;
         }
 
         .empty-state svg {
             width: 64px;
             height: 64px;
+            stroke: #c8c6c4;
             margin-bottom: 16px;
-            stroke: #4b5563;
         }
+
+        .empty-state h3 {
+            color: #323130;
+            margin-bottom: 8px;
+        }
+
+        /* Loading */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e1dfdd;
+            border-top-color: #0078d4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.4);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -634,48 +740,56 @@
         .modal-overlay.active { display: flex; }
 
         .modal {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 500px;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            max-width: 450px;
             width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
         }
 
         .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e1dfdd;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
         }
 
         .modal-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
+            color: #323130;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: #9ca3af;
+            color: #605e5c;
             font-size: 1.5rem;
             cursor: pointer;
+            line-height: 1;
         }
 
-        .modal-body { margin-bottom: 24px; }
+        .modal-close:hover { color: #323130; }
+
+        .modal-body {
+            padding: 20px;
+            color: #323130;
+        }
 
         .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e1dfdd;
             display: flex;
-            gap: 12px;
+            gap: 8px;
             justify-content: flex-end;
         }
 
-        /* Report Page */
+        /* Report View */
         .report-container {
             display: none;
-            padding: 24px;
-            max-width: 800px;
+            padding: 40px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
@@ -687,9 +801,9 @@
         }
 
         .report-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #34d399, #10b981);
+            width: 64px;
+            height: 64px;
+            background: #107c10;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -698,31 +812,36 @@
         }
 
         .report-icon svg {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             stroke: white;
             stroke-width: 3;
-            fill: none;
         }
 
-        .report-icon.error {
-            background: linear-gradient(135deg, #f87171, #dc2626);
+        .report-icon.error { background: #d13438; }
+
+        .report-title {
+            font-size: 1.5rem;
+            color: #323130;
+            margin-bottom: 8px;
         }
 
-        .report-title { font-size: 1.5rem; margin-bottom: 8px; }
-        .report-subtitle { color: #9ca3af; }
+        .report-subtitle { color: #605e5c; }
 
         .report-section {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
+            background: white;
+            border: 1px solid #e1dfdd;
+            border-radius: 2px;
             margin-bottom: 16px;
         }
 
         .report-section-title {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-bottom: 12px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #605e5c;
+            background: #faf9f8;
+            border-bottom: 1px solid #e1dfdd;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -731,8 +850,8 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 16px;
+            border-bottom: 1px solid #edebe9;
         }
 
         .report-item:last-child { border-bottom: none; }
@@ -744,15 +863,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
-        .report-item-icon.success { background: rgba(52,211,153,0.2); color: #34d399; }
-        .report-item-icon.error { background: rgba(248,113,113,0.2); color: #f87171; }
+        .report-item-icon.success { background: #dff6dd; color: #107c10; }
+        .report-item-icon.error { background: #fde7e9; color: #d13438; }
 
         .report-item-content { flex: 1; }
-        .report-item-name { font-weight: 500; }
-        .report-item-detail { font-size: 0.8rem; color: #9ca3af; }
+        .report-item-name { font-weight: 600; color: #323130; }
+        .report-item-detail { font-size: 0.8rem; color: #605e5c; }
 
         .report-actions {
             display: flex;
@@ -762,10 +882,15 @@
         }
 
         /* Responsive */
-        @media (max-width: 900px) {
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .left-panel { width: 320px; min-width: 320px; }
+        }
+
+        @media (max-width: 768px) {
             .main-container { flex-direction: column; }
-            .left-panel { width: 100%; min-width: auto; max-height: 50vh; }
-            .right-panel { max-height: 50vh; }
+            .left-panel { width: 100%; max-height: 40vh; }
+            .right-panel { max-height: 60vh; }
         }
     </style>
 </head>
@@ -773,9 +898,11 @@
     <!-- Main Dashboard -->
     <div id="dashboardView">
         <div class="header">
-            <h1>📊 Invoice Reminder Dashboard</h1>
+            <div class="header-left">
+                <h1>📧 Invoice Reminder Dashboard</h1>
+            </div>
             <div class="header-actions">
-                <span id="dateDisplay"></span>
+                <span class="header-date" id="dateDisplay"></span>
                 <button class="btn btn-primary" id="sendAllBtn" onclick="showConfirmModal()">
                     Send <span id="selectedCountHeader">0</span> Emails
                 </button>
@@ -783,30 +910,53 @@
         </div>
 
         <div class="main-container">
-            <!-- Left Panel -->
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-item active">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Dashboard
+                </div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-section">Status</div>
+                <div class="sidebar-item" onclick="setFilter('overdue')">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    Overdue
+                    <span class="sidebar-count urgent" id="sidebarOverdue">0</span>
+                </div>
+                <div class="sidebar-item" onclick="setFilter('today')">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Due Today
+                    <span class="sidebar-count" id="sidebarToday">0</span>
+                </div>
+                <div class="sidebar-item" onclick="setFilter('upcoming')">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Upcoming
+                    <span class="sidebar-count" id="sidebarUpcoming">0</span>
+                </div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-item" onclick="setFilter('all')">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    All Customers
+                    <span class="sidebar-count" id="sidebarAll">0</span>
+                </div>
+            </div>
+
+            <!-- Left Panel - Customer List -->
             <div class="left-panel">
-                <div class="filters-bar">
+                <div class="panel-header">
+                    <div class="panel-title">Customers</div>
                     <div class="search-box">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
-                        <input type="text" id="searchInput" placeholder="Search customers..." oninput="filterCustomers()">
+                        <input type="text" id="searchInput" placeholder="Search by name or email..." oninput="filterCustomers()">
                     </div>
-                    <div class="filter-buttons">
+                    <div class="filters-row">
                         <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
                         <button class="filter-btn overdue" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
                         <button class="filter-btn today" data-filter="today" onclick="setFilter('today')">Today</button>
                         <button class="filter-btn upcoming" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
-                    </div>
-                    <div class="sort-row">
-                        <label>Sort by:</label>
-                        <select class="sort-select" id="sortSelect" onchange="sortCustomers()">
-                            <option value="status">Status (Critical First)</option>
-                            <option value="amount">Amount (High to Low)</option>
-                            <option value="days">Days Overdue</option>
-                            <option value="lastEmail">Last Email (Oldest First)</option>
-                        </select>
                     </div>
                 </div>
 
@@ -818,25 +968,36 @@
                 </div>
 
                 <div class="list-footer">
-                    <div class="summary-title">Selected Total:</div>
-                    <div class="summary-amounts" id="summaryAmounts">
-                        <span class="summary-item tl" id="summaryTL">0 TL</span>
-                        <span class="summary-item usd" id="summaryUSD">$0</span>
-                        <span class="summary-item eur" id="summaryEUR">€0</span>
+                    <div class="summary-row">
+                        <span class="summary-label">Selected (<span id="selectedCount">0</span>)</span>
+                    </div>
+                    <div class="summary-row" style="margin-top: 8px;">
+                        <span class="summary-value tl" id="summaryTL" style="display:none">0 TL</span>
+                        <span class="summary-value usd" id="summaryUSD" style="display:none">$0</span>
+                        <span class="summary-value eur" id="summaryEUR" style="display:none">€0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Panel -->
+            <!-- Right Panel - Email Preview -->
             <div class="right-panel">
-                <div class="preview-header">
-                    <div class="preview-nav">
-                        <button class="nav-btn" id="prevBtn" onclick="navigateCustomer(-1)">← Prev</button>
-                        <span class="preview-counter" id="previewCounter">0 / 0</span>
-                        <button class="nav-btn" id="nextBtn" onclick="navigateCustomer(1)">Next →</button>
+                <div class="preview-toolbar">
+                    <div class="toolbar-left">
+                        <button class="toolbar-btn" id="prevBtn" onclick="navigateCustomer(-1)">
+                            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                            Previous
+                        </button>
+                        <span class="nav-counter" id="previewCounter">0 / 0</span>
+                        <button class="toolbar-btn" id="nextBtn" onclick="navigateCustomer(1)">
+                            Next
+                            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
                     </div>
                     <div>
-                        <button class="btn btn-secondary" onclick="resetCurrentEmail()">Reset to Template</button>
+                        <button class="toolbar-btn" onclick="resetCurrentEmail()">
+                            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            Reset
+                        </button>
                     </div>
                 </div>
 
@@ -845,58 +1006,58 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
                         </svg>
-                        <h3>Select a customer to preview email</h3>
-                        <p>Click on a customer from the list to see and edit their reminder email.</p>
+                        <h3>Select a customer</h3>
+                        <p>Click on a customer from the list to preview and edit their reminder email.</p>
                     </div>
 
-                    <div class="email-form" id="emailForm" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">To</label>
-                            <input type="text" class="form-input readonly" id="emailTo" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">CC (Press Enter to add)</label>
-                            <div class="cc-container" id="ccContainer">
-                                <input type="email" class="cc-input" id="ccInput" placeholder="Add email and press Enter" onkeydown="handleCCKeydown(event)">
+                    <div class="email-card" id="emailCard" style="display: none;">
+                        <div class="email-header">
+                            <div class="email-field">
+                                <label class="email-label">To:</label>
+                                <input type="text" class="email-input readonly" id="emailTo" readonly>
+                            </div>
+                            <div class="email-field">
+                                <label class="email-label">CC:</label>
+                                <div class="cc-container" id="ccContainer">
+                                    <input type="email" class="cc-input" id="ccInput" placeholder="Add CC and press Enter" onkeydown="handleCCKeydown(event)">
+                                </div>
+                            </div>
+                            <div class="email-field">
+                                <label class="email-label">Subject:</label>
+                                <input type="text" class="email-input" id="emailSubject" oninput="markAsModified()">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Template</label>
-                            <div class="template-select">
+                        <div class="template-section">
+                            <div class="template-label">Template <span class="modified-indicator" id="modifiedIndicator" style="display:none">Modified</span></div>
+                            <div class="template-buttons">
                                 <button class="template-btn soft" data-template="soft" onclick="setTemplate('soft')">
                                     <div class="template-name">Soft</div>
-                                    <div class="template-desc">1st reminder, friendly tone</div>
+                                    <div class="template-desc">1st reminder</div>
                                 </button>
                                 <button class="template-btn firm" data-template="firm" onclick="setTemplate('firm')">
                                     <div class="template-name">Firm</div>
-                                    <div class="template-desc">2nd-3rd reminder, professional</div>
+                                    <div class="template-desc">2nd-3rd reminder</div>
                                 </button>
                                 <button class="template-btn final" data-template="final" onclick="setTemplate('final')">
                                     <div class="template-name">Final</div>
-                                    <div class="template-desc">Last notice, urgent action</div>
+                                    <div class="template-desc">Last notice</div>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Subject</label>
-                            <input type="text" class="form-input" id="emailSubject" oninput="updateCurrentEmail()">
+                        <div class="email-body">
+                            <div class="email-body-label">Message</div>
+                            <textarea class="email-textarea" id="emailBody" oninput="markAsModified()"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Message</label>
-                            <textarea class="form-textarea" id="emailBody" oninput="updateCurrentEmail()"></textarea>
-                        </div>
-
-                        <div class="customer-note-section" id="noteSection">
+                        <div class="note-section" id="noteSection" style="display:none">
                             <div class="note-header">
-                                <span class="note-title">📝 Customer Note</span>
+                                <span class="note-title">⚠️ Customer Note</span>
                                 <button class="note-edit-btn" id="noteEditBtn" onclick="toggleNoteEdit()">Edit</button>
                             </div>
-                            <div class="note-content" id="noteContent">No note</div>
-                            <input type="text" class="note-input" id="noteInput" style="display:none" placeholder="Add a note about this customer..." onblur="saveNote()" onkeydown="if(event.key==='Enter')saveNote()">
+                            <div class="note-content" id="noteContent"></div>
+                            <input type="text" class="note-input" id="noteInput" style="display:none" placeholder="Add a note..." onblur="saveNote()" onkeydown="if(event.key==='Enter')saveNote()">
                         </div>
                     </div>
                 </div>
@@ -908,10 +1069,10 @@
     <div class="report-container" id="reportView">
         <div class="report-header">
             <div class="report-icon" id="reportIcon">
-                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h2 class="report-title" id="reportTitle">Emails Sent Successfully!</h2>
-            <p class="report-subtitle" id="reportSubtitle">8 out of 8 emails were sent</p>
+            <h2 class="report-title" id="reportTitle">Emails Sent Successfully</h2>
+            <p class="report-subtitle" id="reportSubtitle"></p>
         </div>
 
         <div class="report-section">
@@ -925,8 +1086,8 @@
         </div>
 
         <div class="report-actions">
-            <button class="btn btn-secondary" onclick="exportReport()">📥 Export Report</button>
-            <button class="btn btn-primary" onclick="closeDashboard()">Done</button>
+            <button class="btn btn-secondary" onclick="exportReport()">Export Report</button>
+            <button class="btn btn-primary" onclick="location.reload()">Done</button>
         </div>
     </div>
 
@@ -939,11 +1100,11 @@
             </div>
             <div class="modal-body">
                 <p>You are about to send <strong id="confirmCount">0</strong> reminder emails.</p>
-                <p style="margin-top: 12px; color: #9ca3af; font-size: 0.9rem;">This action cannot be undone. Make sure you have reviewed all emails.</p>
+                <p style="margin-top: 12px; color: #605e5c; font-size: 0.9rem;">Please make sure you have reviewed all emails before sending.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="hideConfirmModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="sendAllEmails()">Yes, Send All</button>
+                <button class="btn btn-primary" onclick="sendAllEmails()">Send Emails</button>
             </div>
         </div>
     </div>
@@ -952,11 +1113,11 @@
     <div class="modal-overlay" id="sendingModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Sending Emails...</h3>
+                <h3 class="modal-title">Sending Emails</h3>
             </div>
-            <div class="modal-body" style="text-align: center; padding: 24px;">
+            <div class="modal-body" style="text-align: center; padding: 32px;">
                 <div class="spinner" style="margin: 0 auto 16px;"></div>
-                <p id="sendingStatus">Sending email 1 of 8...</p>
+                <p id="sendingStatus">Sending emails...</p>
             </div>
         </div>
     </div>
@@ -973,22 +1134,19 @@
         let customers = [];
         let selectedCustomerIndex = -1;
         let currentFilter = 'all';
-        let emailEdits = {}; // Store email edits per customer ID
+        let emailEdits = {};
 
         // ============================================
-        // TEMPLATES
+        // TEMPLATES - with proper HTML tables
         // ============================================
         const templates = {
             soft: {
                 tr: {
                     subject: 'Ödeme Hatırlatması - Yaklaşan Vade Tarihi',
-                    body: `Sayın {hitap},
+                    bodyIntro: `Sayın {hitap},
 
-Şirketimiz kayıtlarında, aşağıda bilgileri yer alan fatura/faturalarınızın vade tarihinin yaklaştığını nazikçe hatırlatmak isteriz.
-
-{invoiceTable}
-
-Ödemenizi gerçekleştirdiyseniz bu e-postayı dikkate almayabilirsiniz.
+Şirketimiz kayıtlarında, aşağıda bilgileri yer alan fatura/faturalarınızın vade tarihinin yaklaştığını nazikçe hatırlatmak isteriz.`,
+                    bodyOutro: `Ödemenizi gerçekleştirdiyseniz bu e-postayı dikkate almayabilirsiniz.
 
 Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.
 
@@ -997,13 +1155,10 @@ Vispera AR Team`
                 },
                 en: {
                     subject: 'Payment Reminder - Upcoming Due Date',
-                    body: `Dear {hitap},
+                    bodyIntro: `Dear {hitap},
 
-We would like to kindly remind you that the following invoice(s) are approaching their due date.
-
-{invoiceTable}
-
-If you have already made the payment, please disregard this email.
+We would like to kindly remind you that the following invoice(s) are approaching their due date.`,
+                    bodyOutro: `If you have already made the payment, please disregard this email.
 
 Please don't hesitate to contact us if you have any questions.
 
@@ -1014,13 +1169,10 @@ Vispera AR Team`
             firm: {
                 tr: {
                     subject: 'Vadesi Geçen Faturalarınız Hakkında',
-                    body: `Sayın {hitap},
+                    bodyIntro: `Sayın {hitap},
 
-Şirketimiz kayıtlarında, aşağıda detayları yer alan fatura/faturalarınızın vadesinin geçtiği ve ödemenin henüz tarafımıza ulaşmadığı görülmektedir.
-
-{invoiceTable}
-
-Ödemenizi en kısa sürede gerçekleştirmenizi rica ederiz.
+Şirketimiz kayıtlarında, aşağıda detayları yer alan fatura/faturalarınızın vadesinin geçtiği ve ödemenin henüz tarafımıza ulaşmadığı görülmektedir.`,
+                    bodyOutro: `Ödemenizi en kısa sürede gerçekleştirmenizi rica ederiz.
 
 Ödemenizi gerçekleştirdiyseniz bu e-postayı dikkate almayabilirsiniz.
 
@@ -1029,13 +1181,10 @@ Vispera AR Team`
                 },
                 en: {
                     subject: 'Overdue Invoice(s) - Payment Reminder',
-                    body: `Dear {hitap},
+                    bodyIntro: `Dear {hitap},
 
-We would like to bring to your attention that the following invoice(s) are past due and payment has not yet been received.
-
-{invoiceTable}
-
-We kindly request that you arrange payment at your earliest convenience.
+We would like to bring to your attention that the following invoice(s) are past due and payment has not yet been received.`,
+                    bodyOutro: `We kindly request that you arrange payment at your earliest convenience.
 
 If you have already made the payment, please disregard this email.
 
@@ -1046,13 +1195,10 @@ Vispera AR Team`
             final: {
                 tr: {
                     subject: 'SON UYARI - Vadesi Geçen Faturalarınız',
-                    body: `Sayın {hitap},
+                    bodyIntro: `Sayın {hitap},
 
-Daha önce gönderdiğimiz hatırlatmalara rağmen, aşağıdaki fatura/faturalarınızın ödemesinin hâlâ tarafımıza ulaşmadığını üzülerek bildirmek isteriz.
-
-{invoiceTable}
-
-Bu son hatırlatmamızdır. 7 iş günü içinde ödeme yapılmaması halinde, alacağımızın tahsili için yasal süreç başlatılacaktır.
+Daha önce gönderdiğimiz hatırlatmalara rağmen, aşağıdaki fatura/faturalarınızın ödemesinin hâlâ tarafımıza ulaşmadığını üzülerek bildirmek isteriz.`,
+                    bodyOutro: `Bu son hatırlatmamızdır. 7 iş günü içinde ödeme yapılmaması halinde, alacağımızın tahsili için yasal süreç başlatılacaktır.
 
 Ödemenizi derhal gerçekleştirmenizi önemle rica ederiz.
 
@@ -1061,13 +1207,10 @@ Vispera AR Team`
                 },
                 en: {
                     subject: 'FINAL NOTICE - Overdue Invoice(s)',
-                    body: `Dear {hitap},
+                    bodyIntro: `Dear {hitap},
 
-Despite our previous reminders, we regret to inform you that payment for the following invoice(s) has still not been received.
-
-{invoiceTable}
-
-This is our final notice. If payment is not received within 7 business days, we will be forced to initiate legal proceedings for debt recovery.
+Despite our previous reminders, we regret to inform you that payment for the following invoice(s) has still not been received.`,
+                    bodyOutro: `This is our final notice. If payment is not received within 7 business days, we will be forced to initiate legal proceedings for debt recovery.
 
 We strongly urge you to settle this matter immediately.
 
@@ -1081,7 +1224,7 @@ Vispera AR Team`
         // INITIALIZATION
         // ============================================
         document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
         });
 
         document.addEventListener('DOMContentLoaded', loadData);
@@ -1097,19 +1240,23 @@ Vispera AR Team`
                 const data = await response.json();
                 customers = data.customers || [];
                 
-                // Initialize email edits for each customer
                 customers.forEach(c => {
+                    c.selected = c.excludeFromReminders !== 'TRUE';
                     const template = suggestTemplate(c);
                     emailEdits[c.id] = {
                         cc: c.defaultCC ? c.defaultCC.split(',').map(e => e.trim()).filter(e => e) : [],
                         template: template,
+                        originalTemplate: template,
                         subject: generateSubject(c, template),
                         body: generateBody(c, template),
-                        note: c.customerNote || ''
+                        originalBody: generateBody(c, template),
+                        note: c.customerNote || '',
+                        isModified: false
                     };
                 });
 
                 renderCustomerList();
+                updateSidebar();
                 updateSummary();
                 document.getElementById('listLoading').style.display = 'none';
 
@@ -1119,8 +1266,10 @@ Vispera AR Team`
             } catch (error) {
                 console.error('Error loading data:', error);
                 document.getElementById('listLoading').innerHTML = `
-                    <p style="color: #f87171;">Failed to load data</p>
-                    <p style="font-size: 0.8rem; margin-top: 8px;">${error.message}</p>
+                    <div class="empty-state">
+                        <p style="color: #d13438;">Failed to load data</p>
+                        <p style="font-size: 0.8rem; margin-top: 8px;">${error.message}</p>
+                    </div>
                 `;
             }
         }
@@ -1130,7 +1279,7 @@ Vispera AR Team`
         // ============================================
         function suggestTemplate(customer) {
             const emailCount = customer.emailCount || 0;
-            const maxDaysOverdue = Math.max(...customer.invoices.map(i => i.daysOverdue || 0));
+            const maxDaysOverdue = Math.max(0, ...customer.invoices.map(i => i.daysOverdue || 0));
             
             if (emailCount >= 3 || maxDaysOverdue >= 45) return 'final';
             if (emailCount >= 1 || maxDaysOverdue >= 15) return 'firm';
@@ -1144,21 +1293,23 @@ Vispera AR Team`
 
         function generateBody(customer, template) {
             const lang = customer.isTR ? 'tr' : 'en';
-            let body = templates[template][lang].body;
+            const t = templates[template][lang];
             
-            body = body.replace('{hitap}', customer.hitap || customer.name);
-            body = body.replace('{invoiceTable}', generateInvoiceTable(customer, lang));
+            let body = t.bodyIntro.replace('{hitap}', customer.hitap || customer.name);
+            body += '\n\n' + generateInvoiceTableText(customer, lang);
+            body += '\n\n' + t.bodyOutro;
             
             return body;
         }
 
-        function generateInvoiceTable(customer, lang) {
+        function generateInvoiceTableText(customer, lang) {
             const headers = lang === 'tr' 
                 ? ['Fatura No', 'Vade Tarihi', 'Tutar', 'Durum']
                 : ['Invoice No', 'Due Date', 'Amount', 'Status'];
             
-            let table = `${headers[0].padEnd(20)} ${headers[1].padEnd(15)} ${headers[2].padEnd(15)} ${headers[3]}\n`;
-            table += '-'.repeat(70) + '\n';
+            let lines = [];
+            lines.push(headers.join(' | '));
+            lines.push('-'.repeat(60));
             
             customer.invoices.forEach(inv => {
                 let status;
@@ -1170,14 +1321,115 @@ Vispera AR Team`
                     status = lang === 'tr' ? `${inv.daysUntilDue} gün kaldı` : `${inv.daysUntilDue} days left`;
                 }
                 
-                const amount = typeof inv.amount === 'number' 
-                    ? inv.amount.toLocaleString(customer.isTR ? 'tr-TR' : 'en-US', {minimumFractionDigits: 2}) + ' ' + (customer.currency || (customer.isTR ? 'TL' : 'USD'))
-                    : inv.amount;
-                
-                table += `${(inv.invoiceNo || '-').padEnd(20)} ${(inv.dueDate || '-').padEnd(15)} ${amount.padEnd(15)} ${status}\n`;
+                const amount = formatAmount(inv.amount, customer);
+                lines.push(`${inv.invoiceNo || '-'} | ${inv.dueDate || '-'} | ${amount} | ${status}`);
             });
             
-            return table;
+            return lines.join('\n');
+        }
+
+        function formatAmount(amount, customer) {
+            const num = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
+            const formatted = num.toLocaleString(customer.isTR ? 'tr-TR' : 'en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return formatted + ' ' + (customer.currency || (customer.isTR ? 'TL' : 'USD'));
+        }
+
+        // Generate proper HTML for email sending
+        function generateEmailHTML(customer, edit) {
+            const lang = customer.isTR ? 'tr' : 'en';
+            const bodyLines = edit.body.split('\n');
+            
+            let html = '<div style="font-family: Segoe UI, Arial, sans-serif; font-size: 14px; color: #323130; line-height: 1.6;">';
+            
+            let inTable = false;
+            let tableRows = [];
+            
+            bodyLines.forEach(line => {
+                // Detect table header
+                if (line.includes('Fatura No') || line.includes('Invoice No')) {
+                    inTable = true;
+                    tableRows = [];
+                    return;
+                }
+                
+                // Skip separator line
+                if (line.match(/^-+$/)) return;
+                
+                // Table row
+                if (inTable && line.includes('|')) {
+                    tableRows.push(line.split('|').map(s => s.trim()));
+                    return;
+                }
+                
+                // End of table
+                if (inTable && !line.includes('|') && line.trim()) {
+                    html += generateHTMLTable(tableRows, customer, lang);
+                    inTable = false;
+                    tableRows = [];
+                }
+                
+                // Regular paragraph
+                if (!inTable) {
+                    if (line.trim()) {
+                        html += '<p style="margin: 0 0 12px 0;">' + escapeHtml(line) + '</p>';
+                    } else {
+                        html += '<br>';
+                    }
+                }
+            });
+            
+            // If we ended with table
+            if (inTable && tableRows.length > 0) {
+                html += generateHTMLTable(tableRows, customer, lang);
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function generateHTMLTable(rows, customer, lang) {
+            const headers = lang === 'tr' 
+                ? ['Fatura No', 'Vade Tarihi', 'Tutar', 'Durum']
+                : ['Invoice No', 'Due Date', 'Amount', 'Status'];
+            
+            let html = '<table style="border-collapse: collapse; width: 100%; max-width: 600px; margin: 16px 0; font-size: 13px;">';
+            
+            // Header
+            html += '<thead><tr>';
+            headers.forEach(h => {
+                html += `<th style="border: 1px solid #e1dfdd; padding: 10px 12px; background: #f3f2f1; text-align: left; font-weight: 600; color: #323130;">${h}</th>`;
+            });
+            html += '</tr></thead>';
+            
+            // Body
+            html += '<tbody>';
+            rows.forEach(row => {
+                html += '<tr>';
+                row.forEach((cell, idx) => {
+                    let style = 'border: 1px solid #e1dfdd; padding: 8px 12px; color: #323130;';
+                    // Status column styling
+                    if (idx === 3) {
+                        if (cell.includes('gecikmiş') || cell.includes('overdue')) {
+                            style += ' color: #d13438; font-weight: 500;';
+                        } else if (cell.includes('Bugün') || cell.includes('today')) {
+                            style += ' color: #8a6914; font-weight: 500;';
+                        } else {
+                            style += ' color: #0078d4;';
+                        }
+                    }
+                    html += `<td style="${style}">${escapeHtml(cell)}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // ============================================
@@ -1193,83 +1445,78 @@ Vispera AR Team`
                 return true;
             });
 
-            // Sort
-            const sortBy = document.getElementById('sortSelect').value;
-            filtered.sort((a, b) => {
-                switch(sortBy) {
-                    case 'amount':
-                        return (b.totalAmount || 0) - (a.totalAmount || 0);
-                    case 'days':
-                        return (b.daysOverdue || 0) - (a.daysOverdue || 0);
-                    case 'lastEmail':
-                        return (a.daysSinceLastEmail || 999) - (b.daysSinceLastEmail || 999);
-                    default: // status
-                        const order = {overdue: 0, today: 1, upcoming: 2};
-                        return order[a.status] - order[b.status];
-                }
-            });
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state" style="padding: 40px;">
+                        <p>No customers found</p>
+                    </div>
+                `;
+                return;
+            }
 
-            list.innerHTML = filtered.map((c, idx) => {
+            list.innerHTML = filtered.map(c => {
                 const isSelected = c.selected !== false;
                 const isActive = customers.indexOf(c) === selectedCustomerIndex;
                 const isExcluded = c.excludeFromReminders === 'TRUE';
                 const emailCount = c.emailCount || 0;
-                const hasNote = c.customerNote || emailEdits[c.id]?.note;
+                const edit = emailEdits[c.id];
+                const hasNote = c.customerNote || edit?.note;
                 
                 return `
-                    <div class="customer-card ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''} ${isExcluded ? 'excluded' : ''}" 
+                    <div class="customer-item ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''} ${isExcluded ? 'excluded' : ''}" 
                          data-id="${c.id}" 
                          onclick="selectCustomer(${customers.indexOf(c)})">
-                        <div class="customer-header">
-                            <div class="customer-checkbox" onclick="event.stopPropagation()">
-                                <input type="checkbox" ${isSelected ? 'checked' : ''} ${isExcluded ? 'disabled' : ''} 
-                                       onchange="toggleCustomerSelection(${c.id}, this.checked)">
-                            </div>
-                            <div class="customer-info">
-                                <div class="customer-name-row">
-                                    <span class="customer-name">${c.name}</span>
-                                    <span class="customer-amount">${c.amount}</span>
-                                </div>
-                                <div class="customer-meta">
-                                    <span class="status-badge status-${c.status}">
-                                        ${c.status === 'overdue' ? c.daysOverdue + 'd overdue' : 
-                                          c.status === 'today' ? 'Due today' : 
-                                          c.daysUntilDue + 'd left'}
-                                    </span>
-                                    ${c.daysSinceLastEmail ? `<span class="meta-item">📧 ${c.daysSinceLastEmail}d ago</span>` : ''}
-                                    ${emailCount > 0 ? `<span class="reminder-count">${emailCount}${emailCount === 1 ? 'st' : emailCount === 2 ? 'nd' : emailCount === 3 ? 'rd' : 'th'} reminder</span>` : ''}
-                                    ${hasNote ? '<span class="customer-note-indicator">📝</span>' : ''}
-                                    ${isExcluded ? '<span class="meta-item" style="color:#f87171">⛔ Excluded</span>' : ''}
-                                </div>
-                            </div>
+                        <div class="customer-checkbox" onclick="event.stopPropagation()">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} ${isExcluded ? 'disabled' : ''} 
+                                   onchange="toggleCustomerSelection(${c.id}, this.checked)">
                         </div>
-                        <button class="expand-btn" onclick="event.stopPropagation(); toggleExpand(${c.id})">
-                            ${c.invoiceCount} invoice${c.invoiceCount > 1 ? 's' : ''} ▼
-                        </button>
-                        <div class="customer-invoices">
-                            ${c.invoices.map(inv => `
-                                <div class="invoice-row">
-                                    <span class="invoice-no">${inv.invoiceNo || '-'}</span>
-                                    <span class="invoice-due">${inv.dueDate}</span>
-                                    <span class="invoice-amount">${typeof inv.amount === 'number' ? inv.amount.toLocaleString() : inv.amount}</span>
-                                    <span class="invoice-days ${inv.status}">
-                                        ${inv.status === 'overdue' ? inv.daysOverdue + 'd overdue' : 
-                                          inv.status === 'today' ? 'Today' : 
-                                          inv.daysUntilDue + 'd left'}
-                                    </span>
-                                </div>
-                            `).join('')}
+                        <div class="customer-info">
+                            <div class="customer-name-row">
+                                <span class="customer-name">${c.name}</span>
+                                <span class="customer-amount">${c.amount}</span>
+                            </div>
+                            <div class="customer-meta">
+                                <span class="status-badge status-${c.status}">
+                                    ${c.status === 'overdue' ? c.daysOverdue + ' days overdue' : 
+                                      c.status === 'today' ? 'Due today' : 
+                                      c.daysUntilDue + ' days left'}
+                                </span>
+                                ${emailCount > 0 ? `<span class="reminder-badge">${emailCount}x sent</span>` : ''}
+                                ${hasNote ? '<span style="color:#8a6914">📝</span>' : ''}
+                                ${isExcluded ? '<span style="color:#d13438">Excluded</span>' : ''}
+                            </div>
+                            <div class="expand-toggle" onclick="event.stopPropagation(); toggleExpand(${c.id})">
+                                ${c.invoiceCount} invoice${c.invoiceCount > 1 ? 's' : ''} ▼
+                            </div>
+                            <div class="customer-invoices">
+                                ${c.invoices.map(inv => `
+                                    <div class="invoice-row">
+                                        <span>${inv.invoiceNo || '-'}</span>
+                                        <span>${inv.dueDate}</span>
+                                        <span>${formatAmount(inv.amount, c)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
-
-            updateHeaderCount();
         }
 
         function toggleExpand(customerId) {
-            const card = document.querySelector(`.customer-card[data-id="${customerId}"]`);
-            card.classList.toggle('expanded');
+            const item = document.querySelector(`.customer-item[data-id="${customerId}"]`);
+            item.classList.toggle('expanded');
+        }
+
+        function updateSidebar() {
+            const overdue = customers.filter(c => c.status === 'overdue').length;
+            const today = customers.filter(c => c.status === 'today').length;
+            const upcoming = customers.filter(c => c.status === 'upcoming').length;
+            
+            document.getElementById('sidebarOverdue').textContent = overdue;
+            document.getElementById('sidebarToday').textContent = today;
+            document.getElementById('sidebarUpcoming').textContent = upcoming;
+            document.getElementById('sidebarAll').textContent = customers.length;
         }
 
         // ============================================
@@ -1280,32 +1527,31 @@ Vispera AR Team`
             
             selectedCustomerIndex = index;
             const customer = customers[index];
-            
-            // Update active state in list
-            document.querySelectorAll('.customer-card').forEach((card, i) => {
-                card.classList.toggle('active', customers.indexOf(customers.find(c => c.id == card.dataset.id)) === index);
-            });
-
-            // Show email form
-            document.getElementById('emptyPreview').style.display = 'none';
-            document.getElementById('emailForm').style.display = 'block';
-
-            // Load email data
             const edit = emailEdits[customer.id];
             
+            renderCustomerList();
+
+            document.getElementById('emptyPreview').style.display = 'none';
+            document.getElementById('emailCard').style.display = 'block';
+
             document.getElementById('emailTo').value = customer.email;
             renderCCTags(edit.cc);
             setTemplateUI(edit.template);
             document.getElementById('emailSubject').value = edit.subject;
             document.getElementById('emailBody').value = edit.body;
             
+            document.getElementById('modifiedIndicator').style.display = edit.isModified ? 'inline-block' : 'none';
+            
             // Note section
             const note = edit.note || customer.customerNote || '';
-            document.getElementById('noteContent').textContent = note || 'No note';
-            document.getElementById('noteInput').value = note;
-            document.getElementById('noteSection').style.display = customer.excludeFromReminders === 'TRUE' || note ? 'block' : 'block';
+            if (note) {
+                document.getElementById('noteSection').style.display = 'block';
+                document.getElementById('noteContent').textContent = note;
+                document.getElementById('noteInput').value = note;
+            } else {
+                document.getElementById('noteSection').style.display = 'none';
+            }
 
-            // Update counter
             updatePreviewCounter();
         }
 
@@ -1326,7 +1572,7 @@ Vispera AR Team`
         function updatePreviewCounter() {
             const selectedCustomers = customers.filter(c => c.selected !== false);
             const currentInSelected = selectedCustomers.findIndex(c => customers.indexOf(c) === selectedCustomerIndex);
-            document.getElementById('previewCounter').textContent = `${currentInSelected + 1} / ${selectedCustomers.length}`;
+            document.getElementById('previewCounter').textContent = `${Math.max(0, currentInSelected + 1)} / ${selectedCustomers.length}`;
             
             document.getElementById('prevBtn').disabled = selectedCustomers.length <= 1;
             document.getElementById('nextBtn').disabled = selectedCustomers.length <= 1;
@@ -1377,13 +1623,17 @@ Vispera AR Team`
         // ============================================
         function setTemplate(template) {
             const customer = customers[selectedCustomerIndex];
-            emailEdits[customer.id].template = template;
-            emailEdits[customer.id].subject = generateSubject(customer, template);
-            emailEdits[customer.id].body = generateBody(customer, template);
+            const edit = emailEdits[customer.id];
+            
+            edit.template = template;
+            edit.subject = generateSubject(customer, template);
+            edit.body = generateBody(customer, template);
+            edit.isModified = false;
             
             setTemplateUI(template);
-            document.getElementById('emailSubject').value = emailEdits[customer.id].subject;
-            document.getElementById('emailBody').value = emailEdits[customer.id].body;
+            document.getElementById('emailSubject').value = edit.subject;
+            document.getElementById('emailBody').value = edit.body;
+            document.getElementById('modifiedIndicator').style.display = 'none';
         }
 
         function setTemplateUI(template) {
@@ -1392,20 +1642,29 @@ Vispera AR Team`
             });
         }
 
-        function resetCurrentEmail() {
+        function markAsModified() {
             const customer = customers[selectedCustomerIndex];
-            const template = emailEdits[customer.id].template;
-            emailEdits[customer.id].subject = generateSubject(customer, template);
-            emailEdits[customer.id].body = generateBody(customer, template);
+            const edit = emailEdits[customer.id];
             
-            document.getElementById('emailSubject').value = emailEdits[customer.id].subject;
-            document.getElementById('emailBody').value = emailEdits[customer.id].body;
+            edit.subject = document.getElementById('emailSubject').value;
+            edit.body = document.getElementById('emailBody').value;
+            
+            // Check if actually modified from original
+            edit.isModified = edit.body !== edit.originalBody;
+            document.getElementById('modifiedIndicator').style.display = edit.isModified ? 'inline-block' : 'none';
         }
 
-        function updateCurrentEmail() {
+        function resetCurrentEmail() {
             const customer = customers[selectedCustomerIndex];
-            emailEdits[customer.id].subject = document.getElementById('emailSubject').value;
-            emailEdits[customer.id].body = document.getElementById('emailBody').value;
+            const edit = emailEdits[customer.id];
+            
+            edit.subject = generateSubject(customer, edit.template);
+            edit.body = generateBody(customer, edit.template);
+            edit.isModified = false;
+            
+            document.getElementById('emailSubject').value = edit.subject;
+            document.getElementById('emailBody').value = edit.body;
+            document.getElementById('modifiedIndicator').style.display = 'none';
         }
 
         // ============================================
@@ -1437,8 +1696,6 @@ Vispera AR Team`
             content.style.display = 'block';
             input.style.display = 'none';
             btn.textContent = 'Edit';
-            
-            renderCustomerList();
         }
 
         // ============================================
@@ -1459,14 +1716,13 @@ Vispera AR Team`
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.filter === filter);
             });
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
             renderCustomerList();
         }
 
         function filterCustomers() {
-            renderCustomerList();
-        }
-
-        function sortCustomers() {
             renderCustomerList();
         }
 
@@ -1487,22 +1743,23 @@ Vispera AR Team`
                 else if (currency === 'EUR') totalEUR += amount;
             });
 
-            document.getElementById('summaryTL').textContent = totalTL.toLocaleString('tr-TR') + ' TL';
-            document.getElementById('summaryTL').style.display = totalTL > 0 ? 'inline' : 'none';
+            document.getElementById('selectedCount').textContent = selected.length;
+            document.getElementById('selectedCountHeader').textContent = selected.length;
             
-            document.getElementById('summaryUSD').textContent = '$' + totalUSD.toLocaleString('en-US');
-            document.getElementById('summaryUSD').style.display = totalUSD > 0 ? 'inline' : 'none';
+            const summaryTL = document.getElementById('summaryTL');
+            const summaryUSD = document.getElementById('summaryUSD');
+            const summaryEUR = document.getElementById('summaryEUR');
             
-            document.getElementById('summaryEUR').textContent = '€' + totalEUR.toLocaleString('en-US');
-            document.getElementById('summaryEUR').style.display = totalEUR > 0 ? 'inline' : 'none';
+            summaryTL.textContent = totalTL.toLocaleString('tr-TR') + ' TL';
+            summaryTL.style.display = totalTL > 0 ? 'inline' : 'none';
+            
+            summaryUSD.textContent = '$' + totalUSD.toLocaleString('en-US');
+            summaryUSD.style.display = totalUSD > 0 ? 'inline' : 'none';
+            
+            summaryEUR.textContent = '€' + totalEUR.toLocaleString('en-US');
+            summaryEUR.style.display = totalEUR > 0 ? 'inline' : 'none';
 
-            updateHeaderCount();
-        }
-
-        function updateHeaderCount() {
-            const count = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE').length;
-            document.getElementById('selectedCountHeader').textContent = count;
-            document.getElementById('sendAllBtn').disabled = count === 0;
+            document.getElementById('sendAllBtn').disabled = selected.length === 0;
         }
 
         // ============================================
@@ -1524,20 +1781,30 @@ Vispera AR Team`
 
             const selectedCustomers = customers.filter(c => c.selected !== false && c.excludeFromReminders !== 'TRUE');
             
-            // Prepare payload with all email edits
+            // Prepare payload with HTML email bodies and custom tracking
             const payload = {
                 action: 'send',
-                customers: selectedCustomers.map(c => ({
-                    ...c,
-                    emailData: {
-                        to: c.email,
-                        cc: emailEdits[c.id].cc,
-                        subject: emailEdits[c.id].subject,
-                        body: emailEdits[c.id].body,
-                        template: emailEdits[c.id].template,
-                        note: emailEdits[c.id].note
+                customers: selectedCustomers.map(c => {
+                    const edit = emailEdits[c.id];
+                    // Determine template label with (Custom) suffix if modified
+                    let templateLabel = edit.template.charAt(0).toUpperCase() + edit.template.slice(1);
+                    if (edit.isModified) {
+                        templateLabel += ' (Custom)';
                     }
-                }))
+                    
+                    return {
+                        ...c,
+                        emailData: {
+                            to: c.email,
+                            cc: edit.cc,
+                            subject: edit.subject,
+                            body: edit.body,
+                            bodyHTML: generateEmailHTML(c, edit),
+                            template: templateLabel,
+                            note: edit.note
+                        }
+                    };
+                })
             };
 
             try {
@@ -1571,26 +1838,25 @@ Vispera AR Team`
             const successCount = result.successCount || selectedCustomers.length;
             const totalCount = selectedCustomers.length;
 
-            document.getElementById('reportIcon').classList.toggle('error', !success);
-            document.getElementById('reportTitle').textContent = success ? 'Emails Sent Successfully!' : 'Some Emails Failed';
+            document.getElementById('reportIcon').classList.toggle('error', !success || successCount < totalCount);
+            document.getElementById('reportTitle').textContent = success ? 'Emails Sent Successfully' : 'Some Emails Failed';
             document.getElementById('reportSubtitle').textContent = `${successCount} out of ${totalCount} emails were sent`;
 
-            // Email results
             const emailResults = document.getElementById('reportEmailResults');
             emailResults.innerHTML = selectedCustomers.map(c => {
+                const edit = emailEdits[c.id];
                 const isSuccess = !result.failures || !result.failures.includes(c.id);
                 return `
                     <div class="report-item">
                         <div class="report-item-icon ${isSuccess ? 'success' : 'error'}">${isSuccess ? '✓' : '✗'}</div>
                         <div class="report-item-content">
                             <div class="report-item-name">${c.name}</div>
-                            <div class="report-item-detail">${c.email}${emailEdits[c.id].cc.length ? ' + CC: ' + emailEdits[c.id].cc.join(', ') : ''}</div>
+                            <div class="report-item-detail">${c.email}${edit.cc.length ? ' + CC: ' + edit.cc.join(', ') : ''}</div>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // Sheet results
             const sheetResults = document.getElementById('reportSheetResults');
             const invoiceCount = selectedCustomers.reduce((sum, c) => sum + c.invoices.length, 0);
             sheetResults.innerHTML = `
@@ -1598,18 +1864,20 @@ Vispera AR Team`
                     <div class="report-item-icon success">✓</div>
                     <div class="report-item-content">
                         <div class="report-item-name">${invoiceCount} invoices updated</div>
-                        <div class="report-item-detail">lastEmailSent, emailCount, lastEmailTemplate updated</div>
+                        <div class="report-item-detail">lastEmailSent, emailCount, lastEmailTemplate columns updated</div>
                     </div>
                 </div>
             `;
         }
 
         function exportReport() {
-            // Simple CSV export
             const selected = customers.filter(c => c.selected !== false);
             let csv = 'Customer,Email,Amount,Status,Template,CC\n';
             selected.forEach(c => {
-                csv += `"${c.name}","${c.email}","${c.amount}","${c.status}","${emailEdits[c.id].template}","${emailEdits[c.id].cc.join('; ')}"\n`;
+                const edit = emailEdits[c.id];
+                let templateLabel = edit.template;
+                if (edit.isModified) templateLabel += ' (Custom)';
+                csv += `"${c.name}","${c.email}","${c.amount}","${c.status}","${templateLabel}","${edit.cc.join('; ')}"\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1618,17 +1886,6 @@ Vispera AR Team`
             a.href = url;
             a.download = `reminder-report-${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-        }
-
-        function closeDashboard() {
-            window.close();
-            // If window.close doesn't work, show a message
-            document.getElementById('reportView').innerHTML = `
-                <div class="empty-state" style="height: 100vh;">
-                    <h2>✅ All Done!</h2>
-                    <p>You can close this tab now.</p>
-                </div>
-            `;
         }
     </script>
 </body>
