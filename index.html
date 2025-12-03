@@ -1169,6 +1169,16 @@
         // ============================================
         const WEBHOOK_URL = 'https://smartozzehir.app.n8n.cloud/webhook/invoice-dashboard';
         
+        // Token URL'den alınıyor (?token=xxx)
+        const urlParams = new URLSearchParams(window.location.search);
+        const AUTH_TOKEN = urlParams.get('token') || '';
+        
+        // Token yoksa uyarı göster
+        if (!AUTH_TOKEN) {
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Segoe UI,sans-serif;"><div style="text-align:center;color:#d13438;"><h1>⛔ Access Denied</h1><p>Missing authentication token.</p></div></div>';
+            throw new Error('No token provided');
+        }
+        
         // ============================================
         // STATE
         // ============================================
@@ -1350,7 +1360,9 @@ Vispera AR Team`
         // ============================================
         async function loadData() {
             try {
-                const response = await fetch(WEBHOOK_URL);
+                const response = await fetch(WEBHOOK_URL, {
+                    headers: { 'X-Auth-Token': AUTH_TOKEN }
+                });
                 if (!response.ok) throw new Error('Failed to load data');
                 
                 const data = await response.json();
@@ -1975,7 +1987,10 @@ Vispera AR Team`
                 
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Auth-Token': AUTH_TOKEN
+                    },
                     body: JSON.stringify(payload)
                 });
 
