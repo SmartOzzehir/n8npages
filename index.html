@@ -53,68 +53,7 @@
             height: calc(100vh - 48px);
         }
 
-        /* Left Sidebar - Navigation */
-        .sidebar {
-            width: 200px;
-            background: #1b1b1f;
-            padding: 8px 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-item {
-            padding: 10px 16px;
-            color: #d1d1d1;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.15s;
-        }
-
-        .sidebar-item:hover {
-            background: rgba(255,255,255,0.05);
-        }
-
-        .sidebar-item.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .sidebar-item svg {
-            width: 18px;
-            height: 18px;
-            stroke: currentColor;
-            fill: none;
-        }
-
-        .sidebar-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-            margin: 8px 0;
-        }
-
-        .sidebar-section {
-            padding: 8px 16px 4px;
-            font-size: 0.7rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar-count {
-            margin-left: auto;
-            background: #0078d4;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-        }
-
-        .sidebar-count.urgent {
-            background: #d13438;
-        }
+        /* Sidebar removed - was unnecessary duplication of filter buttons */
 
         /* Left Panel - Customer List */
         .left-panel {
@@ -216,6 +155,11 @@
         .filter-btn.overdue.active { background: #d13438; border-color: #d13438; }
         .filter-btn.today.active { background: #ffaa44; border-color: #ffaa44; color: #323130; }
         .filter-btn.upcoming.active { background: #0078d4; border-color: #0078d4; }
+
+        .filter-count {
+            font-weight: 600;
+            margin-left: 2px;
+        }
 
         /* Customer List */
         .customer-list {
@@ -450,11 +394,11 @@
         .preview-content {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
         }
 
         .email-card {
-            max-width: 700px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             border: 1px solid #e1dfdd;
@@ -988,7 +932,6 @@
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .sidebar { display: none; }
             .left-panel { width: 320px; min-width: 320px; }
         }
 
@@ -1015,37 +958,6 @@
         </div>
 
         <div class="main-container">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-item active" onclick="setFilter('all')">
-                    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Dashboard
-                </div>
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-section">Status</div>
-                <div class="sidebar-item" onclick="setFilter('overdue')">
-                    <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    Overdue
-                    <span class="sidebar-count urgent" id="sidebarOverdue">0</span>
-                </div>
-                <div class="sidebar-item" onclick="setFilter('today')">
-                    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Due Today
-                    <span class="sidebar-count" id="sidebarToday">0</span>
-                </div>
-                <div class="sidebar-item" onclick="setFilter('upcoming')">
-                    <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    Upcoming
-                    <span class="sidebar-count" id="sidebarUpcoming">0</span>
-                </div>
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-item" onclick="setFilter('all')">
-                    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    All Customers
-                    <span class="sidebar-count" id="sidebarAll">0</span>
-                </div>
-            </div>
-
             <!-- Left Panel - Customer List -->
             <div class="left-panel">
                 <div class="panel-header">
@@ -1065,10 +977,10 @@
                         <input type="text" id="searchInput" placeholder="Search by name or email..." oninput="filterCustomers()">
                     </div>
                     <div class="filters-row">
-                        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
-                        <button class="filter-btn overdue" data-filter="overdue" onclick="setFilter('overdue')">Overdue</button>
-                        <button class="filter-btn today" data-filter="today" onclick="setFilter('today')">Today</button>
-                        <button class="filter-btn upcoming" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
+                        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All <span class="filter-count" id="filterAll"></span></button>
+                        <button class="filter-btn overdue" data-filter="overdue" onclick="setFilter('overdue')">Overdue <span class="filter-count" id="filterOverdue"></span></button>
+                        <button class="filter-btn today" data-filter="today" onclick="setFilter('today')">Today <span class="filter-count" id="filterToday"></span></button>
+                        <button class="filter-btn upcoming" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming <span class="filter-count" id="filterUpcoming"></span></button>
                     </div>
                 </div>
 
@@ -1460,7 +1372,7 @@ Vispera AR Team`
                 });
 
                 renderCustomerList();
-                updateSidebar();
+                updateFilterCounts();
                 updateSummary();
                 document.getElementById('listLoading').style.display = 'none';
 
@@ -1698,15 +1610,17 @@ Vispera AR Team`
             item.classList.toggle('expanded');
         }
 
-        function updateSidebar() {
+        // Sidebar removed - counts shown in filter buttons instead
+        
+        function updateFilterCounts() {
             const overdue = customers.filter(c => c.status === 'overdue').length;
             const today = customers.filter(c => c.status === 'today').length;
             const upcoming = customers.filter(c => c.status === 'upcoming').length;
             
-            document.getElementById('sidebarOverdue').textContent = overdue;
-            document.getElementById('sidebarToday').textContent = today;
-            document.getElementById('sidebarUpcoming').textContent = upcoming;
-            document.getElementById('sidebarAll').textContent = customers.length;
+            document.getElementById('filterAll').textContent = customers.length ? `(${customers.length})` : '';
+            document.getElementById('filterOverdue').textContent = overdue ? `(${overdue})` : '';
+            document.getElementById('filterToday').textContent = today ? `(${today})` : '';
+            document.getElementById('filterUpcoming').textContent = upcoming ? `(${upcoming})` : '';
         }
 
         // ============================================
